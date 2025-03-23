@@ -1,0 +1,37 @@
+package templates
+
+templ GetAdmin(csrf string) {
+	<div class="grid grid-cols-3">
+		<div class="flex flex-col content-center m-3">
+			<div class="mx-auto text-lg font-bold">Create a user</div>
+			<form @ajax:success='$el.reset();' x-target="success error" method="post" action="/admin/create-user">
+				<input type="hidden" name="_csrf" value={ csrf }/>
+
+				<div class="grid grid-cols-4 justify-between content-center m-4">
+					<label for="username" class="my-auto">Username</label>
+					<input id="username" name="username" type="text" autocomplete="off" class="col-span-3 m-1 p-2 bg-emerald-100">
+					<label for="password" class="my-auto">Password</label>
+					<input id="password" name="password" type="password" autocomplete="off" class="col-span-3 m-1 p-2 bg-emerald-100">
+				</div>
+
+				<div class="flex justify-center my-2">
+					<button type="submit" class="btn mx-4">Create</button>
+					<button type="reset" class="btn mx-4">Reset</button>
+				</div>
+			</form>
+			<div class="mx-auto">
+				<div id="success"></div>
+				<div id="error"></div>
+			</div>
+		</div>
+		<div class="col-span-2 flex flex-col content-center m-3">
+			<div class="mx-auto text-lg font-bold">Users</div>
+			<!-- TODO: user list -->
+		</div>
+	</div>
+}
+
+templ AdminCreateUserSuccess() {
+	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">User Created</div>
+	<div id="error"></div>
+}

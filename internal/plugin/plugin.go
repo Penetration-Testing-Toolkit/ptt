@@ -166,7 +166,7 @@ func registerRoutes(e *echo.Echo, plugin *ModulePlugin, plugins []*ModulePlugin)
 				// Replace the existing response status & headers with plugin's response
 				registerHelper(c, resp)
 
-				return templates.Layout(PluginsToTemplate(plugins), templates.PluginContent(resp.Body)).Render(c.Request().Context(), c.Response())
+				return templates.Layout(ModulesToTemplate(plugins), templates.PluginContent(resp.Body)).Render(c.Request().Context(), c.Response())
 			} else {
 				// Handle SSE request (https://echo.labstack.com/docs/cookbook/sse)
 				logger.Info("frontend SSE client connected", "IP", c.RealIP(), "Path", c.Request().URL.Path)
@@ -256,11 +256,11 @@ func cleanupPlugins(plugins []*ModulePlugin) {
 	logger.Debug("done killing plugin clients")
 }
 
-// PluginsToTemplate converts plugins slice into a format for the templ templates.
-func PluginsToTemplate(plugins []*ModulePlugin) []*templates.ModuleInfo {
+// ModulesToTemplate converts plugins slice into a format for the templ templates.
+func ModulesToTemplate(modules []*ModulePlugin) []*templates.ModuleInfo {
 	i := make([]*templates.ModuleInfo, 0)
 
-	for _, plug := range plugins {
+	for _, plug := range modules {
 		i = append(i, &templates.ModuleInfo{
 			URL:     plug.rootURL.String(),
 			Name:    plug.info.Name,

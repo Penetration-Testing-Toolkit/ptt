@@ -30,7 +30,7 @@ example:
 .PHONY: templ
 templ:
 	@echo "generating templ files..."
-	templ generate -lazy
+	templ generate -lazy -path internal/templates
 
 
 .PHONY: tailwind

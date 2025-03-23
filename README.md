@@ -20,9 +20,10 @@ It provides a web interface for users to interact with pentest tools.
 
 
 ## TODO
-- User accounts.
 - Admin portal.
-- SQLite database.
+  - Change admin password.
+  - Change user passwords.
+  - List users.
 - Project contexts.
 
 

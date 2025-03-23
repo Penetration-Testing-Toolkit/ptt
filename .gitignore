@@ -40,3 +40,6 @@ plugins
 # Editor directories
 .idea
 .vscode
+
+# SQLite Database
+db.sqlite

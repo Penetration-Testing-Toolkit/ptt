@@ -16,17 +16,23 @@ templ Layout(modules []*ModuleInfo, contents templ.Component) {
 			<link href="/static/css/output.css" rel="stylesheet"/>
 		</head>
 		<body>
-			<div id="header" class="py-3 text-center text-lg bg-emerald-200 ">
-				<div class="mb-3 font-bold text-3xl">
-					<div id="title">PTT</div>
-				</div>
-				<div id="module-buttons" class="flex justify-center">
-					<a href="/" class="row-btn">Home</a>
-					for _, m := range modules {
-						<a href={ templ.URL(m.URL + "/index") } class="row-btn">
-							{ m.Name }
-						</a>
-					}
+			<div id="header" class="py-2 text-center text-lg bg-emerald-200 ">
+				<div class="flex justify-between">
+					<div id="title" class="mx-6 font-bold text-xl">
+						PTT
+						<div class="text-sm">Version 0.1.0</div>
+					</div>
+					<div id="module-buttons" class="flex justify-center">
+						<a href="/" class="row-btn">Home</a>
+						for _, m := range modules {
+							<a href={ templ.URL(m.URL + "/index") } class="row-btn">
+								{ m.Name }
+							</a>
+						}
+					</div>
+					<div class="flex mx-6">
+						<a href="/login" class="btn">Login</a>
+					</div>
 				</div>
 			</div>
 			@contents

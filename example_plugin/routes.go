@@ -89,7 +89,7 @@ func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Res
 }
 
 // sse "GET /sse" example of a sse request.
-// Returns a Server-sent event rather than a templ component's html.
+// Returns a Server-sent event rather than a templ component's HTML.
 // Requires special handling on the frontend.
 func (m *ModuleExample) sse(ctx context.Context, req *http.Request) (chan *shared.Response, error) {
 	m.logger.Debug("SSE request received by plugin implementation", "method", req.Method, "URL", req.URL.String(),

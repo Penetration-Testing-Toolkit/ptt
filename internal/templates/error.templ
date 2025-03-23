@@ -1,0 +1,49 @@
+package templates
+
+import "strconv"
+
+templ errorPage(code int) {
+	<div class="pt-4 pb-4 mb-1 text-center text-xl font-bold bg-red-300">
+		Error { strconv.Itoa(code) }
+	</div>
+}
+
+templ Unauthorized(code int) {
+	@errorPage(code)
+	<div class="text-center">
+		Unauthorized Access
+	</div>
+}
+
+templ Forbidden(code int) {
+	@errorPage(code)
+	<div class="text-center">
+		Forbidden
+	</div>
+}
+
+templ NotFound(code int) {
+@errorPage(code)
+	<div class="text-center">
+		Page not found
+	</div>
+}
+
+templ Error(message string) {
+	<div id="success"></div>
+	<div id="error" class="w-fit p-2 text-center text-lg font-bold underline bg-red-300">
+		Error: { message }
+	</div>
+}
+
+templ InvalidInput(problems []string) {
+	<div id="success"></div>
+	<div id="error" class="w-fit p-2 text-center text-lg font-bold bg-red-300">
+		<div class="underline">Invalid Input</div>
+		for _, problem := range problems {
+			<ul>
+				<li>{ problem }</li>
+			</ul>
+		}
+	</div>
+}

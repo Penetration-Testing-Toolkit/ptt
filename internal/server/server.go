@@ -4,34 +4,58 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/plugin"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/route"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/session"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
 	"github.com/hashicorp/go-hclog"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
 type Config struct {
-	Logger  hclog.Logger
-	Static  fs.FS
-	Address string
+	Logger   hclog.Logger
+	Static   fs.FS
+	Address  string
+	DB       *sqlx.DB
+	Sessions *session.Manager
+	DevMode  bool
 }
 
 func Start(cfg *Config) {
-	logger := cfg.Logger
+	l := cfg.Logger
+
+	g := new(app.Global)
+	*g = app.NewGlobal(l, cfg.DB, cfg.Sessions, make([]*plugin.ModulePlugin, 0), cfg.DevMode)
 
 	// Create Echo server
 	e := echo.New()
 
-	// Format echo's logging through hashicorp/go-hclog
-	requestLogger := logger.Named("request")
+	// Format echo's request logging through hashicorp/go-hclog
+	requestLogger := l.Named("request")
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		Skipper: func(c echo.Context) bool {
+			// Log everything when at debug level
+			if g.Logger().GetLevel() <= hclog.Debug {
+				return false
+			}
+
+			// Else, skip logging static assets
+			if strings.HasPrefix(c.Request().URL.Path, "/static") || c.Request().URL.Path == "/favicon.ico" {
+				return true
+			}
+
+			return false
+		},
 		LogRemoteIP: true,
 		LogURI:      true,
 		LogMethod:   true,
@@ -48,53 +72,85 @@ func Start(cfg *Config) {
 		},
 	}))
 
-	// Custom error handler
-	errHandler := func(err error, c echo.Context) {
+	// Custom echo error handler using our hclog.Logger
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		if c.Response().Committed {
 			return
 		}
 
 		code := http.StatusInternalServerError
+
+		// Try and parse as an echo.HTTPError
 		var he *echo.HTTPError
 		if errors.As(err, &he) {
 			code = he.Code
 		}
-		logger.Error(err.Error())
-		err = c.String(code, "something went wrong, internal server error")
-		if err != nil {
-			return
+		c.Response().Status = code
+
+		// Common error codes have their own page
+		switch code {
+		case http.StatusUnauthorized:
+			err = route.Layout(g, templates.Unauthorized(http.StatusUnauthorized)).Render(c.Request().Context(), c.Response())
+		case http.StatusForbidden:
+			err = route.Layout(g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
+		case http.StatusNotFound:
+			err = route.Layout(g, templates.NotFound(http.StatusNotFound)).Render(c.Request().Context(), c.Response())
 		}
-		return
+
+		if err == nil {
+			return
+		} else {
+			// Something went really wrong
+			code = http.StatusInternalServerError
+			g.Logger().Error("internal server error", "code", code, "err", err.Error())
+			c.Response().Status = http.StatusInternalServerError
+			err = c.String(code, "something went wrong, internal server error")
+			if err != nil {
+				return
+			}
+		}
 	}
-	e.HTTPErrorHandler = errHandler
+
+	// Security middleware
+	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+		XSSProtection: "",     // Deprecated, leave blank to keep disabled!
+		XFrameOptions: "DENY", // Disable site from being displayed in iFrames
+		// TODO: CSP header
+	}))
+
+	// Session middleware
+	e.Use(cfg.Sessions.Middleware)
 
 	// Host static assets
 	staticServer := http.FileServer(http.FS(cfg.Static))
 	e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", staticServer)))
 	e.GET("/favicon.ico", echo.WrapHandler(staticServer))
 
-	// Start plugin discovery & register routes
-	shared.Logger = logger
-	plugins, cleanup := plugin.StartPlugins(logger, e)
+	// Setup server's routes
+	setupRoutes(e, g)
+
+	// Start plugin discovery & register plugin routes
+	shared.Logger = l
+	plugins, cleanup := plugin.StartPlugins(l, e)
 	defer cleanup(plugins)
 
-	// Setup server's routes
-	setupRoutes(logger, e, plugins)
+	// Update global to include the plugins list
+	*g = app.NewGlobal(l, cfg.DB, cfg.Sessions, plugins, cfg.DevMode)
 
 	// Setup graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	// Start server
 	go func() {
-		if logger.GetLevel() <= hclog.Debug {
+		if g.Logger().GetLevel() <= hclog.Debug {
 			for _, r := range e.Routes() {
-				logger.Debug("route defined", "method", fmt.Sprintf("%v", r.Method),
+				g.Logger().Debug("route defined", "method", fmt.Sprintf("%v", r.Method),
 					"path", fmt.Sprintf("%v", r.Path))
 			}
 		}
 
 		if err := e.Start(cfg.Address); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Error("shutting down the server")
+			g.Logger().Error("shutting down the server")
 			os.Exit(1)
 		}
 	}()
@@ -104,19 +160,7 @@ func Start(cfg *Config) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
-		logger.Error("error shutting down server", "err", err.Error())
+		g.Logger().Error("error shutting down server", "err", err.Error())
 		os.Exit(1)
 	}
-}
-
-func setupRoutes(l hclog.Logger, e *echo.Echo, p []*plugin.ModulePlugin) {
-	// Adapts our handler style (route.HandlerFunc) into an echo.HandlerFunc
-	// This allows us to pass the hclog.Logger and plugins alongside echo.Context
-	adapter := func(l hclog.Logger, p []*plugin.ModulePlugin, f route.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			return f(c, l, p)
-		}
-	}
-
-	e.GET("/", adapter(l, p, route.IndexHandler))
 }

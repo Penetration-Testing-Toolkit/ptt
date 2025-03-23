@@ -35,7 +35,7 @@ func Layout(modules []*ModuleInfo, contents templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>PTT</title><link href=\"/static/css/output.css\" rel=\"stylesheet\"></head><body><div id=\"header\" class=\"py-3 text-center text-lg bg-emerald-200 \"><div class=\"mb-3 font-bold text-3xl\"><div id=\"title\">PTT</div></div><div id=\"module-buttons\" class=\"flex justify-center\"><a href=\"/\" class=\"row-btn\">Home</a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>PTT</title><link href=\"/static/css/output.css\" rel=\"stylesheet\"></head><body><div id=\"header\" class=\"py-2 text-center text-lg bg-emerald-200 \"><div class=\"flex justify-between\"><div id=\"title\" class=\"mx-6 font-bold text-xl\">PTT<div class=\"text-sm\">Version 0.1.0</div></div><div id=\"module-buttons\" class=\"flex justify-center\"><a href=\"/\" class=\"row-btn\">Home</a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -56,7 +56,7 @@ func Layout(modules []*ModuleInfo, contents templ.Component) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 27, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `layout.templ`, Line: 29, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -67,7 +67,7 @@ func Layout(modules []*ModuleInfo, contents templ.Component) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"flex mx-6\"><a href=\"/login\" class=\"btn\">Login</a></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
