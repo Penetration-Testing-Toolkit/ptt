@@ -24,7 +24,7 @@ func InsertUser(ctx context.Context, g *app.Global, user *User) error {
 	}
 
 	rows, err := result.RowsAffected()
-	g.Logger().Debug("setup database completed", "rows affected", rows)
+	g.Logger().Debug("insert user completed", "rows affected", rows)
 
 	return nil
 }
