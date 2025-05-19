@@ -36,7 +36,7 @@ func headerToProto(headers http.Header) *proto.Header {
 	return &proto.Header{Header: h}
 }
 
-// headerFromProto converts gRPC proto.Header back into a http.Header.
+// headerFromProto converts gRPC proto.Header back into an http.Header.
 func headerFromProto(headers *proto.Header) http.Header {
 	h := make(map[string][]string)
 	for k, v := range headers.Header {

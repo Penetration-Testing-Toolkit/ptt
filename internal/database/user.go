@@ -4,35 +4,28 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
 )
 
-type User struct {
-	ID       string `db:"id"`
-	Username string `db:"username"`
-	Hash     []byte `db:"hash"`
-	IsAdmin  bool   `db:"is_admin"`
-}
+var insertUser = `INSERT INTO users (id, username, hash, is_admin) VALUES ($1, $2, $3, $4)`
 
-var insertUser = `INSERT INTO users (id, username, hash, is_admin) VALUES ($1, $2, $3, 0)`
-
-func InsertUser(ctx context.Context, g *app.Global, user *User) error {
-	result, err := g.DB().ExecContext(ctx, insertUser, user.ID, user.Username, user.Hash)
+func InsertUser(ctx context.Context, g *app.Global, user *models.UserDB) error {
+	result, err := g.DB().ExecContext(ctx, insertUser, user.ID, user.Username, user.Hash, user.IsAdmin)
 	if err != nil {
 		return err
 	}
 
 	rows, err := result.RowsAffected()
-	g.Logger().Debug("insert user completed", "rows affected", rows)
+	g.Logger().Debug("insert user completed", "rowsAffected", rows)
 
 	return nil
 }
 
 var getUserByID = `SELECT * from users WHERE id=$1 LIMIT 1`
 
-func GetUserByID(ctx context.Context, g *app.Global, id string) (*User, error) {
-	user := new(User)
+func GetUserByID(ctx context.Context, g *app.Global, id string) (*models.UserDB, error) {
+	user := new(models.UserDB)
 	err := g.DB().GetContext(ctx, user, getUserByID, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -45,28 +38,10 @@ func GetUserByID(ctx context.Context, g *app.Global, id string) (*User, error) {
 	return user, nil
 }
 
-func CheckUserIsAdmin(ctx context.Context, g *app.Global, userID string) (bool, error) {
-	user := new(User)
-	err := g.DB().GetContext(ctx, user, getUserByID, userID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			// User ID not found
-			return false, fmt.Errorf("CheckUserIsAdmin: user ID not found: %s", userID)
-		}
-		return false, err
-	}
-
-	if user.IsAdmin {
-		return true, nil
-	}
-
-	return false, nil
-}
-
 var getUserByName = `SELECT * from users WHERE username=$1 LIMIT 1`
 
-func GetUserByName(ctx context.Context, g *app.Global, username string) (*User, error) {
-	user := new(User)
+func GetUserByName(ctx context.Context, g *app.Global, username string) (*models.UserDB, error) {
+	user := new(models.UserDB)
 	err := g.DB().GetContext(ctx, user, getUserByName, username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

@@ -3,7 +3,7 @@ package session
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/google/uuid"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
 	"github.com/hashicorp/go-hclog"
 	"github.com/labstack/echo/v4"
 	"io"
@@ -26,30 +26,34 @@ func (m *Manager) gc(d time.Duration) {
 	ticker := time.NewTicker(d)
 
 	for range ticker.C {
+		m.logger.Debug("session GC starting...")
 		for k, s := range m.store {
 			if s.expired(m) {
 				// Delete key and associated value
+				m.logger.Debug("deleting session", "key", k, "session ID", s.ID(),
+					"username", s.Username())
 				delete(m.store, k)
 			}
 		}
+		m.logger.Debug("session GC ended")
 	}
 }
 
-// valid checks if a sessionID exists and is not expired.
-// If a session is found but is expired, it is deleted.
-func (m *Manager) valid(sessionID string) bool {
+// getValidSession returns a Session if the sessionID exists and is not expired.
+// If a Session is found but is expired, it is deleted.
+func (m *Manager) getValidSession(sessionID string) *Session {
 	s, ok := m.store[sessionID]
 	if !ok {
-		return false
+		return nil
 	}
 
 	if s.expired(m) {
 		// Delete expired key and associated value
 		delete(m.store, sessionID)
-		return false
+		return nil
 	}
 
-	return true
+	return s
 }
 
 // setCookie creates the session cookie on the response.
@@ -71,6 +75,7 @@ func (m *Manager) setCookie(w http.ResponseWriter, id string, expiration time.Du
 	http.SetCookie(w, cookie)
 }
 
+// invalidateCookie sets the session cookie's duration to 0 to invalidate it.
 func (m *Manager) invalidateCookie(w http.ResponseWriter, id string) {
 	m.setCookie(w, id, time.Duration(0))
 }
@@ -85,18 +90,7 @@ func (m *Manager) getIDFromCookie(r *http.Request) string {
 	return cookie.Value
 }
 
-// findSession returns the Session with the given sessionID.
-// If the Session does not exist or is invalid the returned Session will be nil.
-func (m *Manager) findSession(sessionID string) *Session {
-	valid := m.valid(sessionID)
-	if !valid {
-		return nil
-	}
-
-	return m.store[sessionID]
-}
-
-func (m *Manager) NewSession(w http.ResponseWriter, userID uuid.UUID) {
+func (m *Manager) NewSession(w http.ResponseWriter, user *models.User) *Session {
 	id := randomID()
 	i := 0
 	for {
@@ -115,7 +109,9 @@ func (m *Manager) NewSession(w http.ResponseWriter, userID uuid.UUID) {
 
 	s := &Session{
 		id:           id,
-		userID:       userID,
+		userID:       user.ID,
+		username:     user.Username,
+		isAdmin:      user.IsAdmin,
 		createdAt:    time.Now(),
 		lastActivity: time.Now(),
 	}
@@ -124,19 +120,22 @@ func (m *Manager) NewSession(w http.ResponseWriter, userID uuid.UUID) {
 
 	m.setCookie(w, id, m.idleExpiration)
 
-	return
+	return s
 }
 
-func (m *Manager) DeleteSession(sessionID string) {
+// DeleteSession deletes the Session with matching sessionID from the Manager & invalidates the user's session cookie.
+func (m *Manager) DeleteSession(c echo.Context, sessionID string) {
+	m.invalidateCookie(c.Response(), sessionID)
 	delete(m.store, sessionID)
 }
 
 func (m *Manager) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Skip this middleware on static assets and the login page
-		if strings.HasPrefix(c.Request().URL.Path, "/static") ||
-			c.Request().URL.Path == "/favicon.ico" ||
-			c.Request().URL.Path == "/login" {
+		p := c.Request().URL.Path
+		if strings.HasPrefix(p, "/static") ||
+			p == "/favicon.ico" ||
+			p == "/login" {
 			return next(c)
 		}
 
@@ -147,9 +146,9 @@ func (m *Manager) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// Look for session in store
-		s := m.findSession(sessionID)
+		s := m.getValidSession(sessionID)
 		if s == nil {
-			// Invalidate provided session and redirect
+			// Invalidate provided session cookie and redirect
 			m.invalidateCookie(c.Response(), sessionID)
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}

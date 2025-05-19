@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/database"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/route"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
 	"github.com/labstack/echo/v4"
@@ -12,6 +12,7 @@ import (
 	"net/http"
 )
 
+// setupRoutes registers the app's main routes. This does not include plugin routes.
 func setupRoutes(e *echo.Echo, g *app.Global) {
 	// Adapts our handler style (route.HandlerFunc) into an echo.HandlerFunc
 	// This allows us to pass the app.Global alongside echo.Context with a custom route.Response returned
@@ -62,23 +63,18 @@ func setupRoutes(e *echo.Echo, g *app.Global) {
 	// Login
 	e.GET("/login", adapter(route.GetLogin))
 	e.POST("/login", adapter(route.PostLogin))
+	e.GET("/sign-out", adapter(route.GetSignOut))
 
 	// Admin
 	admin := e.Group("/admin", func(next echo.HandlerFunc) echo.HandlerFunc {
 		// Admin authorization middleware
 		return func(c echo.Context) error {
-			s, err := route.GetSession(c)
+			s, err := controller.GetSession(c)
 			if err != nil {
 				return err
 			}
 
-			// Check if user is an admin
-			isAdmin, err := database.CheckUserIsAdmin(c.Request().Context(), g, s.UserID().String())
-			if err != nil {
-				return err
-			}
-
-			if isAdmin {
+			if s.IsAdmin() {
 				return next(c)
 			}
 
@@ -95,7 +91,7 @@ func setupRoutes(e *echo.Echo, g *app.Global) {
 		CookieSameSite: http.SameSiteStrictMode,
 		ErrorHandler: func(err error, c echo.Context) error { // CSRF has a separate error handler
 			c.Response().Status = http.StatusForbidden
-			return route.Layout(g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
+			return route.Layout(c, g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
 		},
 	}))
 

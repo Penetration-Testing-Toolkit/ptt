@@ -7,18 +7,16 @@ templ Example(method, url string) {
 			<p>HTTP request sent to:</p>
 			<p class="font-semibold">{ method } { url }</p>
 		</div>
-
 		<div class="my-12">
 			<p class="font-bold text-xl underline">POST request using Alpine AJAX</p>
 			<p id="numbers">Enter a list of integers (ex. 1,2,3)</p>
 			<form x-target="numbers error" method="post" action="/plugin/github.com/chronotrax/example_plugin/sum" class="p-2">
 				<label for="numbers-input">Numbers list:</label>
-				<input id="numbers-input" name="numbers" type="text" autocomplete="off" class="p-2 bg-emerald-100">
+				<input id="numbers-input" name="numbers" type="text" autocomplete="off" class="p-2 bg-emerald-100"/>
 				<button type="submit" class="btn">Submit</button>
 			</form>
 			<p id="error"></p>
 		</div>
-
 		<div
 			x-data='{ message: "Waiting for updates...", eventSource: null, done: false,
 				startSSE() {

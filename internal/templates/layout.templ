@@ -1,13 +1,19 @@
 package templates
 
-type ModuleInfo struct {
-	URL string
-	Name string
+type Module struct {
+	URL     string
+	Name    string
 	Version string
 }
 
-templ Layout(modules []*ModuleInfo, contents templ.Component) {
-<!DOCTYPE html>
+type User struct {
+	ID       string
+	Username string
+	IsAdmin  bool
+}
+
+templ Layout(modules []*Module, user *User, contents templ.Component) {
+	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
@@ -31,7 +37,14 @@ templ Layout(modules []*ModuleInfo, contents templ.Component) {
 						}
 					</div>
 					<div class="flex mx-6">
-						<a href="/login" class="btn">Login</a>
+						if user != nil && user.IsAdmin {
+							<a href="/admin/" class="row-btn">Admin</a>
+						}
+						if user != nil {
+							<a href="/sign-out" class="row-btn">Sign out</a>
+						} else {
+							<a href="/login" class="row-btn">Login</a>
+						}
 					</div>
 				</div>
 			</div>

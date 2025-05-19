@@ -13,7 +13,7 @@ import (
 
 // GetAdmin "GET /admin/"
 func GetAdmin(c echo.Context, g *app.Global) Response {
-	csrf, err := GetCSRF(c)
+	csrf, err := getCSRF(c)
 	if err != nil {
 		return Response{
 			Err: err,
@@ -21,16 +21,48 @@ func GetAdmin(c echo.Context, g *app.Global) Response {
 	}
 
 	return Response{
-		Component: Layout(g, templates.GetAdmin(csrf)),
+		Component: Layout(c, g, templates.GetAdmin(csrf)),
+	}
+}
+
+// PostAdminCreateUser "POST /admin/create-user"
+func PostAdminCreateUser(c echo.Context, g *app.Global) Response {
+	// Parse form
+	form := new(createUserForm)
+	resp := parse(c, g, form)
+	if resp != nil {
+		return *resp
+	}
+
+	// Send to controller
+	user, err := controller.CreateUser(c.Request().Context(), g, form.Username, form.Password, form.IsAdmin)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// No user was created but there was no error -> username already exists
+	if user == nil {
+		return Response{
+			StatusCode: http.StatusUnprocessableEntity,
+			Component:  templates.Error("username already exists"),
+		}
+	}
+
+	// Success creating new user
+	return Response{
+		Component: templates.AdminCreateUserSuccess(),
 	}
 }
 
 type createUserForm struct {
 	Username string `form:"username"`
 	Password string `form:"password"`
+	IsAdmin  bool   `form:"isAdmin"`
 }
 
-func (f *createUserForm) Validate(_ context.Context) (problems []string) {
+func (f *createUserForm) validate(_ context.Context) (problems []string) {
 	problems = make([]string, 0)
 
 	// Treat usernames as all lowercase
@@ -56,49 +88,4 @@ func (f *createUserForm) Validate(_ context.Context) (problems []string) {
 	}
 
 	return problems
-}
-
-// PostAdminCreateUser "POST /admin/create-user"
-func PostAdminCreateUser(c echo.Context, g *app.Global) Response {
-	// Parse form
-	form := new(createUserForm)
-	if err := c.Bind(form); err != nil {
-		g.Logger().Debug("PostAdminCreateUser: could not bind form", "err", err.Error())
-		return Response{
-			StatusCode: http.StatusBadRequest,
-			Component:  templates.InvalidInput([]string{"could not process form"}),
-		}
-	}
-
-	// Validate input
-	problems := form.Validate(c.Request().Context())
-	if len(problems) != 0 {
-		g.Logger().Debug("PostAdminCreateUser: invalid credentials")
-		return Response{
-			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.InvalidInput(problems),
-		}
-	}
-
-	// Send to controller
-	user, err := controller.CreateUser(c.Request().Context(), g, form.Username, form.Password)
-	if err != nil {
-		return Response{
-			Err: err,
-		}
-	}
-
-	// No user was created but there was no error -> username already exists
-	if user == nil {
-		g.Logger().Debug("PostAdminCreateUser: username already exists")
-		return Response{
-			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error("username already exists"),
-		}
-	}
-
-	// Success creating new user
-	return Response{
-		Component: templates.AdminCreateUserSuccess(),
-	}
 }

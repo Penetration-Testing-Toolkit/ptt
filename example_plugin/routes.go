@@ -64,12 +64,12 @@ func helper(ctx context.Context, comp templ.Component, status int, header http.H
 // index "GET /index" return's the plugin's root page.
 // A /index is the REQUIRED starting point of a plugin.
 func (m *ModuleExample) index(ctx context.Context, req *http.Request) (*shared.Response, error) {
-	// Note that we can pass a http.Header that will be seen from the frontend client
+	// Note that we can pass an http.Header that will be seen from the frontend client
 	return helper(ctx, templates.Example(req.Method, req.URL.String()),
 		http.StatusOK, http.Header{"Example": {"Hello World!"}})
 }
 
-// sum "POST /sum" example of a http.MethodPost request.
+// sum "POST /sum" example of an http.MethodPost request.
 func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Response, error) {
 	sum := 0
 	numStr := req.PostFormValue("numbers")

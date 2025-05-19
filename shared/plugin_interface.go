@@ -77,7 +77,7 @@ type Module interface {
 	// It is the first thing called by the server to set up the Module plugin.
 	Register(ctx context.Context) (*ModuleInfo, error)
 
-	// Handle is the primary function of a Module plugin; to handle a http.Request proxied to the plugin.
+	// Handle is the primary function of a Module plugin; to handle an http.Request proxied to the plugin.
 	Handle(ctx context.Context, req *http.Request) (*Response, error)
 
 	// HandleSSE is the SSE version of Handle.
@@ -158,7 +158,7 @@ func (c *ModuleGRPCClient) HandleSSE(ctx context.Context, req *http.Request) (ch
 				Logger.Debug("closing SSE gRPC streamClient", "cause", "ctx.Done() received")
 				err = streamClient.CloseSend()
 				if err != nil {
-					Logger.Error("error from SSE gRPC streamClient.CloseSend()", "err", err.Error())
+					Logger.Error("error from SSE gRPC streamClient.CloseSend()", "error", err.Error())
 				}
 
 				Logger.Debug("closing server's SSE channel", "cause", "ctx.Done() received")
@@ -178,7 +178,7 @@ func (c *ModuleGRPCClient) HandleSSE(ctx context.Context, req *http.Request) (ch
 					} else {
 						Logger.Debug("closing server's SSE channel",
 							"cause", "error from SSE gRPC streamClient.Recv()",
-							"err", err.Error())
+							"error", err.Error())
 					}
 
 					close(ch)

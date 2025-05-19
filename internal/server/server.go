@@ -40,6 +40,10 @@ func Start(cfg *Config) {
 	// Create Echo server
 	e := echo.New()
 
+	// Hide the Echo banner
+	e.HideBanner = true
+	e.HidePort = true
+
 	// Format echo's request logging through hashicorp/go-hclog
 	requestLogger := l.Named("request")
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -90,11 +94,11 @@ func Start(cfg *Config) {
 		// Common error codes have their own page
 		switch code {
 		case http.StatusUnauthorized:
-			err = route.Layout(g, templates.Unauthorized(http.StatusUnauthorized)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, templates.Unauthorized(http.StatusUnauthorized)).Render(c.Request().Context(), c.Response())
 		case http.StatusForbidden:
-			err = route.Layout(g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
 		case http.StatusNotFound:
-			err = route.Layout(g, templates.NotFound(http.StatusNotFound)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, templates.NotFound(http.StatusNotFound)).Render(c.Request().Context(), c.Response())
 		}
 
 		if err == nil {
@@ -102,7 +106,7 @@ func Start(cfg *Config) {
 		} else {
 			// Something went really wrong
 			code = http.StatusInternalServerError
-			g.Logger().Error("internal server error", "code", code, "err", err.Error())
+			l.Error("internal server error", "code", code, "error", err.Error())
 			c.Response().Status = http.StatusInternalServerError
 			err = c.String(code, "something went wrong, internal server error")
 			if err != nil {
@@ -129,10 +133,18 @@ func Start(cfg *Config) {
 	// Setup server's routes
 	setupRoutes(e, g)
 
-	// Start plugin discovery & register plugin routes
+	// Start plugin discovery
 	shared.Logger = l
-	plugins, cleanup := plugin.StartPlugins(l, e)
-	defer cleanup(plugins)
+	plugins, cleanup := plugin.StartPlugins(l)
+	defer cleanup(l, plugins)
+
+	// Register plugin routes
+	for _, plug := range plugins {
+		err := route.RegisterPluginRoutes(l, e, g, plug)
+		if err != nil {
+			l.Error("error registering routes for plugin", "pluginID", plug.Info().ID, "error", err.Error())
+		}
+	}
 
 	// Update global to include the plugins list
 	*g = app.NewGlobal(l, cfg.DB, cfg.Sessions, plugins, cfg.DevMode)
@@ -140,17 +152,19 @@ func Start(cfg *Config) {
 	// Setup graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
+
 	// Start server
 	go func() {
 		if g.Logger().GetLevel() <= hclog.Debug {
 			for _, r := range e.Routes() {
-				g.Logger().Debug("route defined", "method", fmt.Sprintf("%v", r.Method),
+				l.Debug("route defined", "method", fmt.Sprintf("%v", r.Method),
 					"path", fmt.Sprintf("%v", r.Path))
 			}
 		}
 
+		l.Info("starting server", "address", cfg.Address)
 		if err := e.Start(cfg.Address); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			g.Logger().Error("shutting down the server")
+			l.Error("shutting down the server")
 			os.Exit(1)
 		}
 	}()
@@ -160,7 +174,7 @@ func Start(cfg *Config) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
-		g.Logger().Error("error shutting down server", "err", err.Error())
+		l.Error("error shutting down server", "error", err.Error())
 		os.Exit(1)
 	}
 }

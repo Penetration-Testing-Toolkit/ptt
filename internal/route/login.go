@@ -11,9 +11,42 @@ import (
 )
 
 // GetLogin "GET /login"
-func GetLogin(_ echo.Context, g *app.Global) Response {
+func GetLogin(c echo.Context, g *app.Global) Response {
 	return Response{
-		Component: Layout(g, templates.GetLogin()),
+		Component: Layout(c, g, templates.GetLogin()),
+	}
+}
+
+// PostLogin "POST /login"
+func PostLogin(c echo.Context, g *app.Global) Response {
+	// Parse form
+	form := new(LoginForm)
+	resp := parse(c, g, form)
+	if resp != nil {
+		return *resp
+	}
+
+	// Send to controller
+	failed := "login failed"
+	user, err := controller.Login(c, g, form.Username, form.Password)
+	if err != nil {
+		return Response{
+			StatusCode: http.StatusUnprocessableEntity,
+			Component:  templates.Error(failed),
+		}
+	}
+
+	// Wrong password or user does not exist
+	if user == nil {
+		return Response{
+			StatusCode: http.StatusUnprocessableEntity,
+			Component:  templates.Error(failed),
+		}
+	}
+
+	return Response{
+		StatusCode: http.StatusFound,
+		Redirect:   "/",
 	}
 }
 
@@ -22,7 +55,7 @@ type LoginForm struct {
 	Password string `form:"password"`
 }
 
-func (f *LoginForm) Validate(_ context.Context) (problems []string) {
+func (f *LoginForm) validate(_ context.Context) (problems []string) {
 	problems = make([]string, 0)
 
 	// Treat usernames as all lowercase
@@ -39,58 +72,21 @@ func (f *LoginForm) Validate(_ context.Context) (problems []string) {
 	return problems
 }
 
-// PostLogin "POST /login"
-func PostLogin(c echo.Context, g *app.Global) Response {
-	// Parse form
-	form := new(LoginForm)
-	if err := c.Bind(form); err != nil {
-		g.Logger().Debug("PostLogin: could not bind form", "err", err.Error())
-		return Response{
-			StatusCode: http.StatusBadRequest,
-			Component:  templates.InvalidInput([]string{"could not process form"}),
-		}
-	}
-
-	// Validate input
-	problems := form.Validate(c.Request().Context())
-	if len(problems) != 0 {
-		g.Logger().Debug("PostLogin: invalid credentials")
-		return Response{
-			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.InvalidInput(problems),
-		}
-	}
-
-	// Send to controller
-	failed := "login failed"
-	user, err := controller.Login(c.Request().Context(), g, form.Username, form.Password)
-	if err != nil {
-		g.Logger().Error("PostLogin: error logging in user", "err", err.Error())
-		return Response{
-			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error(failed),
-		}
-	}
-
-	// Wrong password or user does not exist
-	if user == nil {
-		return Response{
-			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error(failed),
-		}
-	}
-
+// GetSignOut "GET /sign-out"
+func GetSignOut(c echo.Context, g *app.Global) Response {
 	// Delete previous session
-	session, err := GetSession(c)
+	s, err := controller.GetSession(c)
 	if err == nil {
-		g.Sessions().DeleteSession(session.ID())
+		g.Logger().Info("signing out", "userID", s.UserID(), "username", s.Username(),
+			"username", s.Username())
+		g.Sessions().DeleteSession(c, s.ID())
+	} else {
+		g.Logger().Debug("GetSignOut: error getting session", "error", err.Error())
 	}
 
-	g.Sessions().NewSession(c.Response(), user.ID)
-
-	g.Logger().Debug("login successful, redirecting")
+	// Redirect to "/login" page
 	return Response{
 		StatusCode: http.StatusFound,
-		Redirect:   "/",
+		Redirect:   "/login",
 	}
 }

@@ -14,8 +14,8 @@ var schema = `CREATE TABLE IF NOT EXISTS users (
 	id TEXT PRIMARY KEY NOT NULL,
 	username TEXT NOT NULL UNIQUE,
 	hash BLOB NOT NULL,
-	is_admin INT NOT NULL);
-`
+	is_admin INT NOT NULL
+);`
 
 func SetupDB(l hclog.Logger) (*sqlx.DB, error) {
 	// Open and ping database
@@ -47,7 +47,7 @@ func SetupDB(l hclog.Logger) (*sqlx.DB, error) {
 		return nil, err
 	}
 	rows, err := result.RowsAffected()
-	l.Debug("created database schema", "rows affected", rows)
+	l.Debug("created database schema", "rowsAffected", rows)
 
 	// Create default admin account
 	hash, err := bcrypt.GenerateFromPassword([]byte("CHANGE_ME!!"), bcrypt.DefaultCost)

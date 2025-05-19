@@ -1,14 +1,13 @@
 package app
 
 import (
-	"context"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/plugin"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/session"
 	"github.com/hashicorp/go-hclog"
 	"github.com/jmoiron/sqlx"
 )
 
-// Global contains globals used throughout the app.
+// Global contains global variables used throughout the app.
 // It is placed in its own package to prevent cyclic import errors.
 type Global struct {
 	logger   hclog.Logger
@@ -18,7 +17,9 @@ type Global struct {
 	devMode  bool
 }
 
-func NewGlobal(logger hclog.Logger, db *sqlx.DB, sessions *session.Manager, modules []*plugin.ModulePlugin, devMode bool) Global {
+func NewGlobal(logger hclog.Logger, db *sqlx.DB, sessions *session.Manager,
+	modules []*plugin.ModulePlugin, devMode bool) Global {
+
 	return Global{
 		logger:   logger,
 		db:       db,
@@ -46,8 +47,4 @@ func (g *Global) Modules() []*plugin.ModulePlugin {
 
 func (g *Global) DevMode() bool {
 	return g.devMode
-}
-
-type Validator interface {
-	Validate(ctx context.Context) (problems []string)
 }

@@ -8,6 +8,8 @@ import (
 type Session struct {
 	id           string
 	userID       uuid.UUID
+	username     string
+	isAdmin      bool
 	createdAt    time.Time
 	lastActivity time.Time
 }
@@ -18,6 +20,14 @@ func (s *Session) ID() string {
 
 func (s *Session) UserID() uuid.UUID {
 	return s.userID
+}
+
+func (s *Session) Username() string {
+	return s.username
+}
+
+func (s *Session) IsAdmin() bool {
+	return s.isAdmin
 }
 
 func (s *Session) expired(m *Manager) bool {

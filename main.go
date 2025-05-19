@@ -52,7 +52,7 @@ func main() {
 		// Else, host static assets embedded in Go binary
 		f, err = fs.Sub(embeddedFS, "static")
 		if err != nil {
-			l.Error("error finding 'static' directory in embedded filesystem", "err", err.Error())
+			l.Error("error finding 'static' directory in embedded filesystem", "error", err.Error())
 			panic(err)
 		}
 		l.Debug("hosting static files from embedded file system")
@@ -61,7 +61,7 @@ func main() {
 	// Setup database
 	db, err := database.SetupDB(l)
 	if err != nil {
-		l.Error("error setting up database", "err", err.Error())
+		l.Error("error setting up database", "error", err.Error())
 		panic(err)
 	}
 
