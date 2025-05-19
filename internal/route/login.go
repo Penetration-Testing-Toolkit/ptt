@@ -10,14 +10,14 @@ import (
 	"strings"
 )
 
-// GetLogin "GET /login"
+// GetLogin "GET /login".
 func GetLogin(c echo.Context, g *app.Global) Response {
 	return Response{
 		Component: Layout(c, g, templates.GetLogin()),
 	}
 }
 
-// PostLogin "POST /login"
+// PostLogin "POST /login".
 func PostLogin(c echo.Context, g *app.Global) Response {
 	// Parse form
 	form := new(LoginForm)
@@ -72,7 +72,7 @@ func (f *LoginForm) validate(_ context.Context) (problems []string) {
 	return problems
 }
 
-// GetSignOut "GET /sign-out"
+// GetSignOut "GET /sign-out".
 func GetSignOut(c echo.Context, g *app.Global) Response {
 	// Delete previous session
 	s, err := controller.GetSession(c)

@@ -11,8 +11,18 @@ import (
 	"unicode"
 )
 
-// GetAdmin "GET /admin/"
+// GetAdmin "GET /admin/".
 func GetAdmin(c echo.Context, g *app.Global) Response {
+	// Get initial users from controller
+	users, err := controller.GetUsers(c, g, 10, 0)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	usersT := usersToTemplateUsers(users)
+
 	csrf, err := getCSRF(c)
 	if err != nil {
 		return Response{
@@ -21,11 +31,11 @@ func GetAdmin(c echo.Context, g *app.Global) Response {
 	}
 
 	return Response{
-		Component: Layout(c, g, templates.GetAdmin(csrf)),
+		Component: Layout(c, g, templates.GetAdmin(csrf, usersT, 10, 0)),
 	}
 }
 
-// PostAdminCreateUser "POST /admin/create-user"
+// PostAdminCreateUser "POST /admin/create-user".
 func PostAdminCreateUser(c echo.Context, g *app.Global) Response {
 	// Parse form
 	form := new(createUserForm)
@@ -35,7 +45,7 @@ func PostAdminCreateUser(c echo.Context, g *app.Global) Response {
 	}
 
 	// Send to controller
-	user, err := controller.CreateUser(c.Request().Context(), g, form.Username, form.Password, form.IsAdmin)
+	user, err := controller.CreateUser(c, g, form.Username, form.Password, form.IsAdmin)
 	if err != nil {
 		return Response{
 			Err: err,
@@ -85,6 +95,57 @@ func (f *createUserForm) validate(_ context.Context) (problems []string) {
 
 	if len(f.Password) < 8 {
 		problems = append(problems, "password must be at least 8 characters long")
+	}
+
+	return problems
+}
+
+// GetUsers "GET /admin/users".
+func GetUsers(c echo.Context, g *app.Global) Response {
+	// Parse query
+	query := new(GetUsersQuery)
+	resp := parse(c, g, query)
+	if resp != nil {
+		return *resp
+	}
+
+	// Send to controller
+	users, err := controller.GetUsers(c, g, query.PageSize, query.Page)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	usersT := usersToTemplateUsers(users)
+
+	csrf, err := getCSRF(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Success creating new user
+	return Response{
+		Component: templates.GetUsers(csrf, usersT, query.PageSize, query.Page),
+	}
+}
+
+type GetUsersQuery struct {
+	PageSize int `query:"pageSize"`
+	Page     int `query:"page"`
+}
+
+func (g GetUsersQuery) validate(_ context.Context) (problems []string) {
+	problems = make([]string, 0)
+
+	if g.PageSize < 10 || 50 < g.PageSize {
+		problems = append(problems, "page size must be between [10. 50]")
+	}
+
+	if g.Page < 0 {
+		problems = append(problems, "page must be > 0")
 	}
 
 	return problems

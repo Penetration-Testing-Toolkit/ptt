@@ -22,7 +22,7 @@ func InsertUser(ctx context.Context, g *app.Global, user *models.UserDB) error {
 	return nil
 }
 
-var getUserByID = `SELECT * from users WHERE id=$1 LIMIT 1`
+var getUserByID = `SELECT * FROM users WHERE id=$1 LIMIT 1`
 
 func GetUserByID(ctx context.Context, g *app.Global, id string) (*models.UserDB, error) {
 	user := new(models.UserDB)
@@ -38,7 +38,7 @@ func GetUserByID(ctx context.Context, g *app.Global, id string) (*models.UserDB,
 	return user, nil
 }
 
-var getUserByName = `SELECT * from users WHERE username=$1 LIMIT 1`
+var getUserByName = `SELECT * FROM users WHERE username=$1 LIMIT 1`
 
 func GetUserByName(ctx context.Context, g *app.Global, username string) (*models.UserDB, error) {
 	user := new(models.UserDB)
@@ -52,4 +52,20 @@ func GetUserByName(ctx context.Context, g *app.Global, username string) (*models
 	}
 
 	return user, nil
+}
+
+var getUsers = `SELECT * FROM users LIMIT $1 OFFSET $2`
+
+func GetUsers(ctx context.Context, g *app.Global, limit, offset int) ([]*models.UserDB, error) {
+	users := make([]*models.UserDB, 0)
+	err := g.DB().SelectContext(ctx, &users, getUsers, limit, offset)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// No rows -> no users
+			return users, nil
+		}
+		return nil, err
+	}
+
+	return users, nil
 }

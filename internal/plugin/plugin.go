@@ -41,8 +41,8 @@ func (m ModulePlugin) RootURL() *url.URL {
 	return m.rootURL
 }
 
-// ModulesToTemplate converts a ModulePlugin slice into a templates.Module slice.
-func ModulesToTemplate(modules []*ModulePlugin) []*templates.Module {
+// ModulesToTemplateModules converts a ModulePlugin slice into a templates.Module slice.
+func ModulesToTemplateModules(modules []*ModulePlugin) []*templates.Module {
 	i := make([]*templates.Module, 0)
 
 	for _, plug := range modules {

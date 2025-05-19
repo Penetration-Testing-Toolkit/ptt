@@ -1,19 +1,19 @@
 package controller
 
 import (
-	"context"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/database"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CreateUser(ctx context.Context, g *app.Global,
+func CreateUser(c echo.Context, g *app.Global,
 	username, password string, isAdmin bool) (*models.User, error) {
 
 	// Check if username is already in use
-	exists, err := database.GetUserByName(ctx, g, username)
+	exists, err := database.GetUserByName(c.Request().Context(), g, username)
 	if err != nil {
 		return nil, err
 	}
@@ -31,10 +31,29 @@ func CreateUser(ctx context.Context, g *app.Global,
 
 	user := models.NewUser(uuid.New(), username, hash, isAdmin)
 
-	err = database.InsertUser(ctx, g, user.ToDB())
+	err = database.InsertUser(c.Request().Context(), g, user.ToDB())
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func GetUsers(c echo.Context, g *app.Global, pageSize, page int) ([]*models.User, error) {
+	usersDB, err := database.GetUsers(c.Request().Context(), g, pageSize, page*pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert models
+	users := make([]*models.User, 0)
+	for _, uDB := range usersDB {
+		u, err := models.UserFromDB(uDB)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
 }

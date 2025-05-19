@@ -1,10 +1,11 @@
 package templates
 
-templ GetAdmin(csrf string) {
+templ GetAdmin(csrf string, users []*User, pageSize, page int) {
 	<div class="grid grid-cols-3">
 		<div class="flex flex-col content-center m-3">
 			<div class="mx-auto text-lg font-bold">Create a user</div>
 			<form @ajax:success="$el.reset();" x-target="success error" method="post" action="/admin/create-user">
+				<!-- TODO: update list on user creation -->
 				<input type="hidden" name="_csrf" value={ csrf }/>
 				<div class="grid grid-cols-4 justify-between content-center m-4">
 					<label for="username" class="my-auto">Username</label>
@@ -25,8 +26,10 @@ templ GetAdmin(csrf string) {
 			</div>
 		</div>
 		<div class="col-span-2 flex flex-col content-center m-3">
-			<div class="mx-auto text-lg font-bold">Users</div>
-			<!-- TODO: user list -->
+			<div class="flex flex-col items-center">
+				<div class="text-lg font-bold">Users</div>
+				@GetUsers(csrf, users, pageSize, page)
+			</div>
 		</div>
 	</div>
 }
@@ -34,4 +37,75 @@ templ GetAdmin(csrf string) {
 templ AdminCreateUserSuccess() {
 	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">User Created</div>
 	<div id="error"></div>
+}
+
+templ GetUsers(csrf string, users []*User, pageSize, page int) {
+	<!-- TODO: show page & page size errors? -->
+	<form id="pageForm" x-target="users pageForm" action="/admin/users">
+		<div class="flex items-center m-1">
+			<label for="pageSize" class="m-1">
+				Page size:
+			</label>
+			<select id="pageSize" name="pageSize" autocomplete="off" class="m-1">
+				if pageSize != 10 {
+					<option value="10">10</option>
+				} else {
+					<option value="10" selected="selected">10</option>
+				}
+				if pageSize == 25 {
+					<option value="25" selected="selected">25</option>
+				} else {
+					<option value="25">25</option>
+				}
+				if pageSize == 50 {
+					<option value="50" selected="selected">50</option>
+				} else {
+					<option value="50">50</option>
+				}
+			</select>
+			<button name="page" value={ page } class="btn">↺</button>
+		</div>
+		<div class="grid grid-cols-3 justify-items-center items-center m-1">
+			if page > 0 {
+				<button name="page" value={ page - 1 } class="btn m-1">🡠</button>
+			} else {
+				<div></div>
+			}
+			<div class="m-1">{ page }</div>
+			if len(users) != 0 {
+				<button name="page" value={ page + 1 } class="btn m-1">🡢</button>
+			} else {
+				<div></div>
+			}
+		</div>
+	</form>
+	<ul id="users" class="flex flex-col">
+		for _, user := range users {
+			<li class="bg-green-100 grid grid-cols-3 justify-items-end items-center m-1 p-1 text-lg rounded-md">
+				<div class="w-50 justify-self-start m-1">Username: { user.Username }</div>
+				<div class="w-25 m-1">
+					Is Admin?
+					if user.IsAdmin {
+						<span class="bg-green-200 rounded-lg p-0.5">
+							✓
+						</span>
+					} else {
+						<span class="bg-red-200 rounded-lg p-0.5">
+							✕
+						</span>
+					}
+				</div>
+				<div class="flex justify-between">
+					<a href={ templ.URL("/admin/change-password/" + user.ID) } class="btn m-1">Change Password</a>
+					<!-- TODO: change user password -->
+					<form method="post" action="/admin/delete-user">
+						<!-- TODO: user deletion -->
+						<input type="hidden" name="_csrf" value={ csrf }/>
+						<input type="hidden" name="userID" value={ user.ID }/>
+						<button type="submit" class="btn m-1 !bg-red-400">🗑</button>
+					</form>
+				</div>
+			</li>
+		}
+	</ul>
 }

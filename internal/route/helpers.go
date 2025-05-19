@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/plugin"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/session"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
@@ -31,7 +32,7 @@ type validatable interface {
 
 // Layout wraps the given templ.Component in the templates.Layout page.
 func Layout(c echo.Context, g *app.Global, component templ.Component) templ.Component {
-	i := plugin.ModulesToTemplate(g.Modules())
+	i := plugin.ModulesToTemplateModules(g.Modules())
 
 	s, err := controller.GetSession(c)
 	if err != nil {
@@ -51,7 +52,20 @@ func sessionToTemplateUser(s *session.Session) *templates.User {
 	}
 }
 
-// parse binds a POST form to a validatable struct and validates its input.
+// usersToTemplateUsers converts a slice of models.User into a slice of templates.User.
+func usersToTemplateUsers(users []*models.User) []*templates.User {
+	usersT := make([]*templates.User, 0)
+	for _, user := range users {
+		usersT = append(usersT, &templates.User{
+			ID:       user.ID.String(),
+			Username: user.Username,
+			IsAdmin:  user.IsAdmin,
+		})
+	}
+	return usersT
+}
+
+// parse binds path params, query params, and the request body to a validatable struct and validates its input.
 // Returns a Response if there was a problem, else it returns nil.
 func parse(c echo.Context, g *app.Global, form validatable) *Response {
 	// Bind form

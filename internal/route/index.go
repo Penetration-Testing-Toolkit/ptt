@@ -18,7 +18,7 @@ func GetIndex(c echo.Context, g *app.Global) Response {
 	}
 
 	return Response{
-		Component: Layout(c, g, templates.GetIndex(plugin.ModulesToTemplate(g.Modules()),
+		Component: Layout(c, g, templates.GetIndex(plugin.ModulesToTemplateModules(g.Modules()),
 			sessionToTemplateUser(s))),
 	}
 }
