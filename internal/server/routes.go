@@ -90,14 +90,16 @@ func setupRoutes(e *echo.Echo, g *app.Global) {
 		CookieHTTPOnly: true,
 		CookieSameSite: http.SameSiteStrictMode,
 		ErrorHandler: func(err error, c echo.Context) error { // CSRF has a separate error handler
+			g.Logger().Error("CSRF error handler", "error", err.Error())
 			c.Response().Status = http.StatusForbidden
-			return route.Layout(c, g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
+			return route.Layout(c, g, templates.ErrorPage(http.StatusForbidden, "Forbidden", "")).Render(c.Request().Context(), c.Response())
 		},
 	}))
 
 	admin.GET("/", adapter(route.GetAdmin))
-	admin.POST("/create-user", adapter(route.PostAdminCreateUser))
 	admin.GET("/users", adapter(route.GetUsers))
+	admin.POST("/create-user", adapter(route.PostAdminCreateUser))
+	admin.POST("/delete-user", adapter(route.PostAdminDeleteUser))
 
 	// Dev mode has some additional debug routes
 	if g.DevMode() {

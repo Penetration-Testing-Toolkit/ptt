@@ -57,3 +57,35 @@ func GetUsers(c echo.Context, g *app.Global, pageSize, page int) ([]*models.User
 
 	return users, nil
 }
+
+func DeleteUser(c echo.Context, g *app.Global, id string) (bool, error) {
+	// Parse user's ID (UUID)
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+
+	// Get user from db
+	user, err := database.GetUserByID(c.Request().Context(), g, uid.String())
+	if err != nil {
+		return false, err
+	}
+
+	// Check for user
+	if user == nil {
+		return false, nil
+	}
+
+	// Prevent deleting default "root" user
+	if user.Username == "root" {
+		return false, nil
+	}
+
+	// Delete user
+	err = database.DeleteUser(c.Request().Context(), g, uid.String())
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

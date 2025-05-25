@@ -42,7 +42,7 @@ func GetIndex(modules []*Module, user *User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"m-4 text-center font-bold text-xl underline\">Loaded Plugins</div><ul class=\"text-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ".</div><div class=\"m-4 text-center font-bold text-xl underline\">Loaded Plugins</div><ul class=\"text-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

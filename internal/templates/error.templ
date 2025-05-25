@@ -2,30 +2,12 @@ package templates
 
 import "strconv"
 
-templ errorPage(code int) {
+templ ErrorPage(code int, title, message string) {
 	<div class="pt-4 pb-4 mb-1 text-center text-xl font-bold bg-red-300">
-		Error { strconv.Itoa(code) }
-	</div>
-}
-
-templ Unauthorized(code int) {
-	@errorPage(code)
-	<div class="text-center">
-		Unauthorized Access
-	</div>
-}
-
-templ Forbidden(code int) {
-	@errorPage(code)
-	<div class="text-center">
-		Forbidden
-	</div>
-}
-
-templ NotFound(code int) {
-	@errorPage(code)
-	<div class="text-center">
-		Page not found
+		Error { strconv.Itoa(code) }: { title }
+		<div>
+			{ message }
+		</div>
 	</div>
 }
 

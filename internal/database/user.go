@@ -69,3 +69,17 @@ func GetUsers(ctx context.Context, g *app.Global, limit, offset int) ([]*models.
 
 	return users, nil
 }
+
+var deleteUser = `DELETE FROM users WHERE id == $1`
+
+func DeleteUser(ctx context.Context, g *app.Global, id string) error {
+	result, err := g.DB().ExecContext(ctx, deleteUser, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	g.Logger().Debug("delete user completed", "rowsAffected", rows)
+
+	return nil
+}

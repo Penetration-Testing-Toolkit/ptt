@@ -78,27 +78,36 @@ func Start(cfg *Config) {
 
 	// Custom echo error handler using our hclog.Logger
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		l.Debug("error handler", "error", err.Error())
 		if c.Response().Committed {
 			return
 		}
 
 		code := http.StatusInternalServerError
+		message := ""
 
 		// Try and parse as an echo.HTTPError
 		var he *echo.HTTPError
 		if errors.As(err, &he) {
 			code = he.Code
+			if s, ok := he.Message.(string); ok {
+				message = s
+			}
 		}
 		c.Response().Status = code
 
 		// Common error codes have their own page
 		switch code {
 		case http.StatusUnauthorized:
-			err = route.Layout(c, g, templates.Unauthorized(http.StatusUnauthorized)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, templates.ErrorPage(http.StatusUnauthorized, "Unauthorized", message)).Render(c.Request().Context(), c.Response())
 		case http.StatusForbidden:
-			err = route.Layout(c, g, templates.Forbidden(http.StatusForbidden)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, templates.ErrorPage(http.StatusForbidden, "Forbidden", message)).Render(c.Request().Context(), c.Response())
 		case http.StatusNotFound:
-			err = route.Layout(c, g, templates.NotFound(http.StatusNotFound)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, templates.ErrorPage(http.StatusNotFound, "Not Found", message)).Render(c.Request().Context(), c.Response())
+		case http.StatusInternalServerError:
+			fallthrough
+		default:
+			err = route.Layout(c, g, templates.ErrorPage(http.StatusInternalServerError, "Internal Server Error", message)).Render(c.Request().Context(), c.Response())
 		}
 
 		if err == nil {
@@ -106,8 +115,8 @@ func Start(cfg *Config) {
 		} else {
 			// Something went really wrong
 			code = http.StatusInternalServerError
-			l.Error("internal server error", "code", code, "error", err.Error())
-			c.Response().Status = http.StatusInternalServerError
+			l.Error("internal server error: could not render an error page", "code", code, "error", err.Error())
+			c.Response().Status = code
 			err = c.String(code, "something went wrong, internal server error")
 			if err != nil {
 				return

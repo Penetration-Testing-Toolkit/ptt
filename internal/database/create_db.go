@@ -49,16 +49,16 @@ func SetupDB(l hclog.Logger) (*sqlx.DB, error) {
 	rows, err := result.RowsAffected()
 	l.Debug("created database schema", "rowsAffected", rows)
 
-	// Create default admin account
-	hash, err := bcrypt.GenerateFromPassword([]byte("CHANGE_ME!!"), bcrypt.DefaultCost)
+	// Create default "root" user
+	hash, err := bcrypt.GenerateFromPassword([]byte("changeme!!"), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
-	_, err = db.Exec("INSERT INTO users VALUES ($1, 'admin', $2, 1)", uuid.New().String(), hash)
+	_, err = db.Exec("INSERT INTO users VALUES ($1, 'root', $2, 1)", uuid.New().String(), hash)
 	if err != nil {
 		return nil, err
 	}
-	l.Debug("created default admin account")
+	l.Debug("created root user")
 
 	return db, nil
 }

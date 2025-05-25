@@ -2,7 +2,7 @@ package templates
 
 templ GetIndex(modules []*Module, user *User) {
 	<div id="content" class="my-3 text-lg">
-		<div class="m-4 text-center font-bold text-xl">Welcome, { user.Username }</div>
+		<div class="m-4 text-center font-bold text-xl">Welcome, { user.Username }.</div>
 		<div class="m-4 text-center font-bold text-xl underline">Loaded Plugins</div>
 		<ul class="text-center">
 			for _, m := range modules {

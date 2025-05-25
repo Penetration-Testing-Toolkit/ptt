@@ -150,3 +150,46 @@ func (g GetUsersQuery) validate(_ context.Context) (problems []string) {
 
 	return problems
 }
+
+// PostAdminDeleteUser "POST /admin/delete-user".
+func PostAdminDeleteUser(c echo.Context, g *app.Global) Response {
+	// Parse form
+	form := new(deleteUserForm)
+	resp := parse(c, g, form)
+	if resp != nil {
+		return *resp
+	}
+
+	// Send to controller
+	success, err := controller.DeleteUser(c, g, form.UserID)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	if !success {
+		return Response{
+			StatusCode: http.StatusUnprocessableEntity,
+			Component:  templates.Error("no user was deleted"),
+		}
+	}
+
+	return Response{
+		Component: templates.AdminDeleteUserSuccess(),
+	}
+}
+
+type deleteUserForm struct {
+	UserID string `form:"userID"`
+}
+
+func (f *deleteUserForm) validate(_ context.Context) (problems []string) {
+	problems = make([]string, 0)
+
+	if len(f.UserID) == 0 {
+		problems = append(problems, "userID cannot be empty")
+	}
+
+	return problems
+}

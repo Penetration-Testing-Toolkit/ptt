@@ -97,15 +97,20 @@ templ GetUsers(csrf string, users []*User, pageSize, page int) {
 				</div>
 				<div class="flex justify-between">
 					<a href={ templ.URL("/admin/change-password/" + user.ID) } class="btn m-1">Change Password</a>
-					<!-- TODO: change user password -->
-					<form method="post" action="/admin/delete-user">
-						<!-- TODO: user deletion -->
-						<input type="hidden" name="_csrf" value={ csrf }/>
-						<input type="hidden" name="userID" value={ user.ID }/>
-						<button type="submit" class="btn m-1 !bg-red-400">🗑</button>
-					</form>
+					if user.Username != "root" {
+						<form x-target="success error" method="post" action="/admin/delete-user">
+							<input type="hidden" name="_csrf" value={ csrf }/>
+							<input type="hidden" name="userID" value={ user.ID }/>
+							<button type="submit" class="btn m-1 !bg-red-400">🗑</button>
+						</form>
+					}
 				</div>
 			</li>
 		}
 	</ul>
+}
+
+templ AdminDeleteUserSuccess() {
+	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">User Deleted</div>
+	<div id="error"></div>
 }
