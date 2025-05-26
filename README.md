@@ -20,10 +20,6 @@ pentest tools.
 
 ## TODO
 
-- Admin portal.
-  - Change admin password.
-  - Change user passwords.
-  - List users.
 - Project contexts.
 
 ## How PTT Works

@@ -70,6 +70,20 @@ func GetUsers(ctx context.Context, g *app.Global, limit, offset int) ([]*models.
 	return users, nil
 }
 
+var changePassword = `UPDATE users SET hash = $1 WHERE id == $2`
+
+func ChangePassword(ctx context.Context, g *app.Global, hash, id string) error {
+	result, err := g.DB().ExecContext(ctx, changePassword, hash, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	g.Logger().Debug("change password completed", "rowsAffected", rows)
+
+	return nil
+}
+
 var deleteUser = `DELETE FROM users WHERE id == $1`
 
 func DeleteUser(ctx context.Context, g *app.Global, id string) error {

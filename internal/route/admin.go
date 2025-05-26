@@ -35,8 +35,8 @@ func GetAdmin(c echo.Context, g *app.Global) Response {
 	}
 }
 
-// PostAdminCreateUser "POST /admin/create-user".
-func PostAdminCreateUser(c echo.Context, g *app.Global) Response {
+// PostCreateUser "POST /admin/create-user".
+func PostCreateUser(c echo.Context, g *app.Global) Response {
 	// Parse form
 	form := new(createUserForm)
 	resp := parse(c, g, form)
@@ -100,6 +100,78 @@ func (f *createUserForm) validate(_ context.Context) (problems []string) {
 	return problems
 }
 
+// PostChangePassword "POST /admin/change-password".
+func PostChangePassword(c echo.Context, g *app.Global) Response {
+	// Parse form
+	form := new(changePasswordForm)
+	resp := parse(c, g, form)
+	if resp != nil {
+		return *resp
+	}
+
+	// Send to controller
+	success, err := controller.ChangePassword(c, g, form.Username, form.OldPassword, form.NewPassword)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	if !success {
+		return Response{
+			StatusCode: http.StatusUnprocessableEntity,
+			Component:  templates.Error("password was not updated"),
+		}
+	}
+
+	return Response{
+		Component: templates.AdminChangePasswordSuccess(),
+	}
+}
+
+type changePasswordForm struct {
+	Username        string `form:"username"`
+	OldPassword     string `form:"oldPassword"`
+	NewPassword     string `form:"newPassword"`
+	ConfirmPassword string `form:"confirmPassword"`
+}
+
+func (f *changePasswordForm) validate(_ context.Context) (problems []string) {
+	problems = make([]string, 0)
+
+	// Treat usernames as all lowercase
+	f.Username = strings.ToLower(f.Username)
+
+	alphanumeric := true
+	for _, c := range f.Username {
+		if !unicode.IsLetter(c) && !unicode.IsNumber(c) {
+			alphanumeric = false
+			break
+		}
+	}
+	if !alphanumeric {
+		problems = append(problems, "username must only contain alphanumeric characters")
+	}
+
+	if len(f.Username) < 3 {
+		problems = append(problems, "username must be at least 3 characters long")
+	}
+
+	if f.NewPassword != f.ConfirmPassword {
+		problems = append(problems, "new password does not match confirm password")
+	}
+
+	if len(f.OldPassword) < 8 {
+		problems = append(problems, "old password must be at least 8 characters long")
+	}
+
+	if len(f.NewPassword) < 8 {
+		problems = append(problems, "new password must be at least 8 characters long")
+	}
+
+	return problems
+}
+
 // GetUsers "GET /admin/users".
 func GetUsers(c echo.Context, g *app.Global) Response {
 	// Parse query
@@ -151,8 +223,8 @@ func (g GetUsersQuery) validate(_ context.Context) (problems []string) {
 	return problems
 }
 
-// PostAdminDeleteUser "POST /admin/delete-user".
-func PostAdminDeleteUser(c echo.Context, g *app.Global) Response {
+// PostDeleteUser "POST /admin/delete-user".
+func PostDeleteUser(c echo.Context, g *app.Global) Response {
 	// Parse form
 	form := new(deleteUserForm)
 	resp := parse(c, g, form)

@@ -98,8 +98,9 @@ func setupRoutes(e *echo.Echo, g *app.Global) {
 
 	admin.GET("/", adapter(route.GetAdmin))
 	admin.GET("/users", adapter(route.GetUsers))
-	admin.POST("/create-user", adapter(route.PostAdminCreateUser))
-	admin.POST("/delete-user", adapter(route.PostAdminDeleteUser))
+	admin.POST("/create-user", adapter(route.PostCreateUser))
+	admin.POST("/change-password", adapter(route.PostChangePassword))
+	admin.POST("/delete-user", adapter(route.PostDeleteUser))
 
 	// Dev mode has some additional debug routes
 	if g.DevMode() {

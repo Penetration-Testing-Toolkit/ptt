@@ -39,6 +39,42 @@ func CreateUser(c echo.Context, g *app.Global,
 	return user, nil
 }
 
+func ChangePassword(c echo.Context, g *app.Global,
+	username, oldPassword, newPassword string) (bool, error) {
+
+	// Get user
+	user, err := database.GetUserByName(c.Request().Context(), g, username)
+	if err != nil {
+		return false, err
+	}
+	if user == nil {
+		g.Logger().Debug("ChangePassword: no user found")
+		return false, nil
+	}
+
+	// Compare database's hash to provided old password
+	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(oldPassword))
+	if err != nil {
+		g.Logger().Debug("ChangePassword: password does not match")
+		return false, nil
+	}
+
+	// At this point, user has the correct old password
+
+	// bcrypt handles hash & salt automatically
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return false, err
+	}
+
+	err = database.ChangePassword(c.Request().Context(), g, string(hash), user.ID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func GetUsers(c echo.Context, g *app.Global, pageSize, page int) ([]*models.User, error) {
 	usersDB, err := database.GetUsers(c.Request().Context(), g, pageSize, page*pageSize)
 	if err != nil {
