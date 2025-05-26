@@ -2,6 +2,7 @@ package route
 
 import (
 	"context"
+	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
@@ -61,12 +62,14 @@ func (f *LoginForm) validate(_ context.Context) (problems []string) {
 	// Treat usernames as all lowercase
 	f.Username = strings.ToLower(f.Username)
 
-	if len(f.Username) == 0 {
-		problems = append(problems, "username cannot be empty")
+	if len(f.Username) < minUsernameLength || maxUsernameLength < len(f.Username) {
+		problems = append(problems, fmt.Sprintf("username must be between %d-%d characters long",
+			minUsernameLength, maxUsernameLength))
 	}
 
-	if len(f.Password) == 0 {
-		problems = append(problems, "password cannot be empty")
+	if len(f.Password) < minPasswordLength || maxPasswordLength < len(f.Password) {
+		problems = append(problems, fmt.Sprintf("password must be between %d-%d characters long",
+			minPasswordLength, maxPasswordLength))
 	}
 
 	return problems

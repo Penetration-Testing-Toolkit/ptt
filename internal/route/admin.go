@@ -2,6 +2,7 @@ package route
 
 import (
 	"context"
+	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
@@ -10,6 +11,11 @@ import (
 	"strings"
 	"unicode"
 )
+
+const minUsernameLength = 3
+const maxUsernameLength = 20
+const minPasswordLength = 8
+const maxPasswordLength = 72 // bcrypt password cannot exceed 72 bytes
 
 // GetAdmin "GET /admin/".
 func GetAdmin(c echo.Context, g *app.Global) Response {
@@ -78,23 +84,26 @@ func (f *createUserForm) validate(_ context.Context) (problems []string) {
 	// Treat usernames as all lowercase
 	f.Username = strings.ToLower(f.Username)
 
-	alphanumeric := true
-	for _, c := range f.Username {
-		if !unicode.IsLetter(c) && !unicode.IsNumber(c) {
-			alphanumeric = false
-			break
+	if len(f.Username) < minUsernameLength || maxUsernameLength < len(f.Username) {
+		problems = append(problems, fmt.Sprintf("username must be between %d-%d characters long",
+			minUsernameLength, maxUsernameLength))
+	} else {
+		// If username is within acceptable length, check for invalid characters
+		alphanumeric := true
+		for _, c := range f.Username {
+			if !unicode.IsLetter(c) && !unicode.IsNumber(c) {
+				alphanumeric = false
+				break
+			}
+		}
+		if !alphanumeric {
+			problems = append(problems, "username must only contain alphanumeric characters")
 		}
 	}
-	if !alphanumeric {
-		problems = append(problems, "username must only contain alphanumeric characters")
-	}
 
-	if len(f.Username) < 3 {
-		problems = append(problems, "username must be at least 3 characters long")
-	}
-
-	if len(f.Password) < 8 {
-		problems = append(problems, "password must be at least 8 characters long")
+	if len(f.Password) < minPasswordLength || maxPasswordLength < len(f.Password) {
+		problems = append(problems, fmt.Sprintf("password must be between %d-%d characters long",
+			minPasswordLength, maxPasswordLength))
 	}
 
 	return problems
@@ -142,31 +151,35 @@ func (f *changePasswordForm) validate(_ context.Context) (problems []string) {
 	// Treat usernames as all lowercase
 	f.Username = strings.ToLower(f.Username)
 
-	alphanumeric := true
-	for _, c := range f.Username {
-		if !unicode.IsLetter(c) && !unicode.IsNumber(c) {
-			alphanumeric = false
-			break
+	if len(f.Username) < minUsernameLength || maxUsernameLength < len(f.Username) {
+		problems = append(problems, fmt.Sprintf("username must be between %d-%d characters long",
+			minUsernameLength, maxUsernameLength))
+	} else {
+		// If username is within acceptable length, check for invalid characters
+		alphanumeric := true
+		for _, c := range f.Username {
+			if !unicode.IsLetter(c) && !unicode.IsNumber(c) {
+				alphanumeric = false
+				break
+			}
 		}
-	}
-	if !alphanumeric {
-		problems = append(problems, "username must only contain alphanumeric characters")
-	}
-
-	if len(f.Username) < 3 {
-		problems = append(problems, "username must be at least 3 characters long")
+		if !alphanumeric {
+			problems = append(problems, "username must only contain alphanumeric characters")
+		}
 	}
 
 	if f.NewPassword != f.ConfirmPassword {
 		problems = append(problems, "new password does not match confirm password")
 	}
 
-	if len(f.OldPassword) < 8 {
-		problems = append(problems, "old password must be at least 8 characters long")
+	if len(f.OldPassword) < minPasswordLength || maxPasswordLength < len(f.OldPassword) {
+		problems = append(problems, fmt.Sprintf("old password must be between %d-%d characters long",
+			minPasswordLength, maxPasswordLength))
 	}
 
-	if len(f.NewPassword) < 8 {
-		problems = append(problems, "new password must be at least 8 characters long")
+	if len(f.NewPassword) < minPasswordLength || maxPasswordLength < len(f.NewPassword) {
+		problems = append(problems, fmt.Sprintf("new password must be between %d-%d characters long",
+			minPasswordLength, maxPasswordLength))
 	}
 
 	return problems
