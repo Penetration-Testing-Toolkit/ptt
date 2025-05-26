@@ -36,7 +36,7 @@ templ:
 .PHONY: tailwind
 tailwind:
 	@echo "processing tailwindcss..."
-	tailwindcss -i ./static/css/input.css -o ./static/css/output.css
+	./node_modules/.bin/tailwindcss -i ./static/css/input.css -o ./static/css/output.css
 
 
 .PHONY: build
