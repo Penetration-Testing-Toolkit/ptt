@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/plugin"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/template"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
 	"github.com/hashicorp/go-hclog"
 	"github.com/labstack/echo/v4"
@@ -23,6 +24,22 @@ func RegisterPluginRoutes(logger hclog.Logger, e *echo.Echo, g *app.Global, plug
 	for _, r := range info.Routes {
 		// Setup echo.HandlerFunc
 		handler := func(c echo.Context) error {
+			// Set user & project headers from session
+			sess, err := controller.GetSession(c)
+			if err != nil {
+				return err
+			}
+
+			user := sess.User()
+			c.Request().Header.Add("PTT-Username", user.Username)
+			c.Request().Header.Add("PTT-User-ID", user.ID.String())
+
+			project := sess.Project()
+			if project != nil {
+				c.Request().Header.Add("PTT-Project-Name", project.Name)
+				c.Request().Header.Add("PTT-Project-ID", project.ID.String())
+			}
+
 			if !r.UseSSE {
 				// Regular (non-SSE) HTTP request
 				// Proxy request to plugin's handler
@@ -34,7 +51,7 @@ func RegisterPluginRoutes(logger hclog.Logger, e *echo.Echo, g *app.Global, plug
 				// Replace the existing response status & headers with plugin's response
 				registerHelper(c, resp)
 
-				return Layout(c, g, templates.PluginContent(resp.Body)).Render(c.Request().Context(), c.Response())
+				return Layout(c, g, template.PluginContent(resp.Body)).Render(c.Request().Context(), c.Response())
 			} else {
 				// Handle SSE request (https://echo.labstack.com/docs/cookbook/sse)
 				logger.Info("frontend SSE client connected", "IP", c.RealIP(), "Path", c.Request().URL.Path)

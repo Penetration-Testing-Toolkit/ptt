@@ -1,18 +1,8 @@
 package templates
 
-type Module struct {
-	URL     string
-	Name    string
-	Version string
-}
+import "github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 
-type User struct {
-	ID       string
-	Username string
-	IsAdmin  bool
-}
-
-templ Layout(modules []*Module, user *User, contents templ.Component) {
+templ Layout(modules []*model.ModuleTempl, user *model.UserTempl, project *model.ProjectTempl, contents templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -24,9 +14,18 @@ templ Layout(modules []*Module, user *User, contents templ.Component) {
 		<body>
 			<div id="header" class="py-2 text-center text-lg bg-emerald-200 ">
 				<div class="flex justify-between">
-					<div id="title" class="mx-6 font-bold text-xl">
-						PTT
-						<div class="text-sm">Version 0.1.0</div>
+					<div class="flex justify-center">
+						<div id="title" class="mx-6 font-bold text-xl">
+							PTT
+							<div class="text-sm">Version 0.1.0</div>
+						</div>
+						<a href="/project" class="row-btn">
+							if project != nil {
+								{ project.Name }
+							} else {
+								No Project Selected
+							}
+						</a>
 					</div>
 					<div id="module-buttons" class="flex justify-center">
 						<a href="/" class="row-btn">Home</a>
@@ -38,7 +37,7 @@ templ Layout(modules []*Module, user *User, contents templ.Component) {
 					</div>
 					<div class="flex mx-6">
 						if user != nil && user.IsAdmin {
-							<a href="/admin/" class="row-btn">Admin</a>
+							<a href="/admin" class="row-btn">Admin</a>
 						}
 						if user != nil {
 							<a href="/sign-out" class="row-btn">Sign out</a>

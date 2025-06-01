@@ -2,7 +2,7 @@ package plugin
 
 import (
 	"context"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
@@ -41,12 +41,12 @@ func (m ModulePlugin) RootURL() *url.URL {
 	return m.rootURL
 }
 
-// ModulesToTemplateModules converts a ModulePlugin slice into a templates.Module slice.
-func ModulesToTemplateModules(modules []*ModulePlugin) []*templates.Module {
-	i := make([]*templates.Module, 0)
+// ModulesToTempl converts a ModulePlugin slice into a model.ModuleTempl slice.
+func ModulesToTempl(modules []*ModulePlugin) []*model.ModuleTempl {
+	i := make([]*model.ModuleTempl, 0)
 
 	for _, plug := range modules {
-		i = append(i, &templates.Module{
+		i = append(i, &model.ModuleTempl{
 			URL:     plug.rootURL.String(),
 			Name:    plug.info.Name,
 			Version: plug.info.Version,
@@ -81,7 +81,7 @@ func StartPlugins(logger hclog.Logger) (plugins []*ModulePlugin, cleanupFunc fun
 // discoverPlugins searches through the "plugins" directory for potential plugin executables to load.
 // Returns a slice of file names that might be plugins.
 func discoverPlugins(logger hclog.Logger) []string {
-	var files = make([]string, 0)
+	files := make([]string, 0)
 
 	// Create "plugins" directory if it does not exist
 	err := os.Mkdir("plugins", os.ModePerm)

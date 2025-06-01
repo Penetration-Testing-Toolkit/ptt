@@ -5,12 +5,17 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 )
 
-var insertUser = `INSERT INTO users (id, username, hash, is_admin) VALUES ($1, $2, $3, $4)`
+var insertUser = `
+INSERT INTO
+	users (id, username, hash, is_admin)
+VALUES
+	($1, $2, $3, $4)
+;`
 
-func InsertUser(ctx context.Context, g *app.Global, user *models.UserDB) error {
+func InsertUser(ctx context.Context, g *app.Global, user *model.UserDB) error {
 	result, err := g.DB().ExecContext(ctx, insertUser, user.ID, user.Username, user.Hash, user.IsAdmin)
 	if err != nil {
 		return err
@@ -22,10 +27,19 @@ func InsertUser(ctx context.Context, g *app.Global, user *models.UserDB) error {
 	return nil
 }
 
-var getUserByID = `SELECT * FROM users WHERE id=$1 LIMIT 1`
+var getUserByID = `
+SELECT
+	id, username, hash, is_admin
+FROM
+	users
+WHERE
+	id == $1
+LIMIT
+	1
+;`
 
-func GetUserByID(ctx context.Context, g *app.Global, id string) (*models.UserDB, error) {
-	user := new(models.UserDB)
+func GetUserByID(ctx context.Context, g *app.Global, id string) (*model.UserDB, error) {
+	user := new(model.UserDB)
 	err := g.DB().GetContext(ctx, user, getUserByID, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -38,10 +52,19 @@ func GetUserByID(ctx context.Context, g *app.Global, id string) (*models.UserDB,
 	return user, nil
 }
 
-var getUserByName = `SELECT * FROM users WHERE username=$1 LIMIT 1`
+var getUserByName = `
+SELECT
+	id, username, hash, is_admin
+FROM
+	users
+WHERE
+	username == $1
+LIMIT
+	1
+;`
 
-func GetUserByName(ctx context.Context, g *app.Global, username string) (*models.UserDB, error) {
-	user := new(models.UserDB)
+func GetUserByName(ctx context.Context, g *app.Global, username string) (*model.UserDB, error) {
+	user := new(model.UserDB)
 	err := g.DB().GetContext(ctx, user, getUserByName, username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -54,10 +77,19 @@ func GetUserByName(ctx context.Context, g *app.Global, username string) (*models
 	return user, nil
 }
 
-var getUsers = `SELECT * FROM users LIMIT $1 OFFSET $2`
+var getUsers = `
+SELECT
+	id, username, hash, is_admin
+FROM
+	users
+LIMIT
+	$1
+OFFSET
+	$2
+;`
 
-func GetUsers(ctx context.Context, g *app.Global, limit, offset int) ([]*models.UserDB, error) {
-	users := make([]*models.UserDB, 0)
+func GetUsers(ctx context.Context, g *app.Global, limit, offset int) ([]*model.UserDB, error) {
+	users := make([]*model.UserDB, 0)
 	err := g.DB().SelectContext(ctx, &users, getUsers, limit, offset)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -70,7 +102,14 @@ func GetUsers(ctx context.Context, g *app.Global, limit, offset int) ([]*models.
 	return users, nil
 }
 
-var changePassword = `UPDATE users SET hash = $1 WHERE id == $2`
+var changePassword = `
+UPDATE
+	users
+SET
+	hash = $1
+WHERE
+	id == $2
+;`
 
 func ChangePassword(ctx context.Context, g *app.Global, hash, id string) error {
 	result, err := g.DB().ExecContext(ctx, changePassword, hash, id)
@@ -84,7 +123,12 @@ func ChangePassword(ctx context.Context, g *app.Global, hash, id string) error {
 	return nil
 }
 
-var deleteUser = `DELETE FROM users WHERE id == $1`
+var deleteUser = `
+DELETE FROM
+	users
+WHERE
+	id == $1
+;`
 
 func DeleteUser(ctx context.Context, g *app.Global, id string) error {
 	result, err := g.DB().ExecContext(ctx, deleteUser, id)

@@ -1,0 +1,109 @@
+package templates
+
+import "github.com/Penetration-Testing-Toolkit/ptt/internal/model"
+
+templ GetProject(csrf string, user *model.UserTempl, projects []*model.ProjectTempl) {
+	<div class="grid grid-cols-3">
+		<div class="m-3">
+			<div class="flex flex-col m-3 p-2 bg-gray-200">
+				<div class="mx-auto text-lg font-bold">
+					Create a New Project
+				</div>
+				<form
+					@ajax:success="$el.reset();"
+					x-target="success error"
+					method="post"
+					action="/project/create"
+				>
+					<input type="hidden" name="_csrf" value={ csrf }/>
+					<div class="grid grid-cols-4 justify-between content-center m-4">
+						<label for="name" class="my-auto">Project Name</label>
+						<input id="name" name="name" type="text" autocomplete="off" autofocus class="col-span-3 m-1 p-2 bg-emerald-100"/>
+					</div>
+					<div class="flex justify-center my-2">
+						<button type="submit" class="btn mx-4">Create</button>
+						<button type="reset" class="btn mx-4">Reset</button>
+					</div>
+				</form>
+			</div>
+			<div class="flex flex-col items-center">
+				<div id="success"></div>
+				<div id="error"></div>
+			</div>
+		</div>
+		<div class="col-span-2 flex flex-col items-center m-3">
+			<div class="text-lg font-bold">
+				Projects
+			</div>
+			<form
+				x-target="projects"
+				action="/project/projects"
+				class="m-2"
+			>
+				<button class="btn">↺</button>
+			</form>
+			@GetProjects(csrf, user, projects)
+			<form
+				method="post"
+				action="/project/select"
+			>
+				<input type="hidden" name="_csrf" value={ csrf }/>
+				<button type="submit" class="btn">Deselect Project</button>
+			</form>
+		</div>
+	</div>
+}
+
+templ GetProjects(csrf string, user *model.UserTempl, projects []*model.ProjectTempl) {
+	<ul id="projects" class="flex flex-col">
+		for _, proj := range projects {
+			<li class="bg-emerald-100 flex m-1 p-1 text-lg rounded-md">
+				<div class="flex flex-col justify-between">
+					<div class="m-1">
+						Project:
+					</div>
+					<div class="w-100 m-1 text-lg font-bold">
+						{ proj.Name }
+					</div>
+					<div class="w-100 m-1">
+						Owner: <span class="font-bold">{ proj.OwnerName }</span>
+					</div>
+				</div>
+				<div class="flex flex-col justify-between items-end">
+					<form
+						method="post"
+						action="/project/select"
+					>
+						<input type="hidden" name="_csrf" value={ csrf }/>
+						<input type="hidden" name="projectID" value={ proj.ID }/>
+						<button type="submit" class="btn m-1">Select</button>
+					</form>
+					if user.ID == proj.OwnerID || user.IsAdmin {
+						<form
+							x-target="success error"
+							method="post"
+							action="/project/delete"
+							onsubmit="if(!confirm('Are you sure you want to delete this project?')){return false}"
+						>
+							<input type="hidden" name="_csrf" value={ csrf }/>
+							<input type="hidden" name="projectID" value={ proj.ID }/>
+							<button type="submit" class="btn m-1 !bg-red-400 hover:!bg-red-700">🗑</button>
+						</form>
+					} else {
+						<div></div>
+					}
+				</div>
+			</li>
+		}
+	</ul>
+}
+
+templ CreateProjectSuccess() {
+	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">Project Created</div>
+	<div id="error"></div>
+}
+
+templ DeleteProjectSuccess() {
+	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">Project Deleted</div>
+	<div id="error"></div>
+}

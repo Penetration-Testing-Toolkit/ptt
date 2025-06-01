@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"github.com/google/uuid"
@@ -20,6 +20,14 @@ func NewUser(id uuid.UUID, username string, hash []byte, isAdmin bool) *User {
 	}
 }
 
+func (u *User) ToTempl() *UserTempl {
+	return &UserTempl{
+		ID:       u.ID.String(),
+		Username: u.Username,
+		IsAdmin:  u.IsAdmin,
+	}
+}
+
 func (u *User) ToDB() *UserDB {
 	admin := 0
 	if u.IsAdmin {
@@ -32,6 +40,12 @@ func (u *User) ToDB() *UserDB {
 		Hash:     u.Hash,
 		IsAdmin:  admin,
 	}
+}
+
+type UserTempl struct {
+	ID       string
+	Username string
+	IsAdmin  bool
 }
 
 type UserDB struct {

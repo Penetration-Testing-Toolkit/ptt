@@ -3,7 +3,7 @@ package session
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 	"github.com/hashicorp/go-hclog"
 	"github.com/labstack/echo/v4"
 	"io"
@@ -30,8 +30,8 @@ func (m *Manager) gc(d time.Duration) {
 		for k, s := range m.store {
 			if s.expired(m) {
 				// Delete key and associated value
-				m.logger.Debug("deleting session", "key", k, "session ID", s.ID(),
-					"username", s.Username())
+				m.logger.Debug("deleting session", "key", k, "session ID", s.id,
+					"username", s.user.Username)
 				delete(m.store, k)
 			}
 		}
@@ -90,7 +90,7 @@ func (m *Manager) getIDFromCookie(r *http.Request) string {
 	return cookie.Value
 }
 
-func (m *Manager) NewSession(w http.ResponseWriter, user *models.User) *Session {
+func (m *Manager) NewSession(w http.ResponseWriter, user *model.User) *Session {
 	id := randomID()
 	i := 0
 	for {
@@ -109,9 +109,8 @@ func (m *Manager) NewSession(w http.ResponseWriter, user *models.User) *Session 
 
 	s := &Session{
 		id:           id,
-		userID:       user.ID,
-		username:     user.Username,
-		isAdmin:      user.IsAdmin,
+		user:         user,
+		project:      nil,
 		createdAt:    time.Now(),
 		lastActivity: time.Now(),
 	}

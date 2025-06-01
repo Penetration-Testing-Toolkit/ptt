@@ -3,9 +3,10 @@ package main
 import (
 	"bytes"
 	"context"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates/example_plugin"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/template/example_plugin"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
 	"github.com/a-h/templ"
+	"github.com/hashicorp/go-hclog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -64,8 +65,21 @@ func helper(ctx context.Context, comp templ.Component, status int, header http.H
 // index "GET /index" return's the plugin's root page.
 // A /index is the REQUIRED starting point of a plugin.
 func (m *ModuleExample) index(ctx context.Context, req *http.Request) (*shared.Response, error) {
+	// If logger is debug level or lower, print all request headers
+	if m.logger.GetLevel() <= hclog.Debug {
+		for k, v := range req.Header {
+			m.logger.Debug("request header", k, v)
+		}
+	}
+
+	username := req.Header.Get("PTT-Username")
+	userID := req.Header.Get("PTT-User-ID")
+	projectName := req.Header.Get("PTT-Project-Name")
+	projectID := req.Header.Get("PTT-Project-ID")
+
 	// Note that we can pass an http.Header that will be seen from the frontend client
-	return helper(ctx, templates.Example(req.Method, req.URL.String()),
+	return helper(ctx, templates.Example(req.Method, req.URL.String(),
+		username, userID, projectName, projectID),
 		http.StatusOK, http.Header{"Example": {"Hello World!"}})
 }
 

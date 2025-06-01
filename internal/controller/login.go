@@ -3,12 +3,12 @@ package controller
 import (
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/database"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(c echo.Context, g *app.Global, username, password string) (*models.User, error) {
+func Login(c echo.Context, g *app.Global, username, password string) (*model.User, error) {
 	// Find desired user in database
 	userDB, err := database.GetUserByName(c.Request().Context(), g, username)
 	if err != nil {
@@ -22,7 +22,7 @@ func Login(c echo.Context, g *app.Global, username, password string) (*models.Us
 	}
 
 	// Convert model
-	user, err := models.UserFromDB(userDB)
+	user, err := model.UserFromDB(userDB)
 	if err != nil {
 		return nil, err
 	}
@@ -37,13 +37,15 @@ func Login(c echo.Context, g *app.Global, username, password string) (*models.Us
 	// At this point, user has been authenticated
 
 	// Delete previous session from session.Manager & invalidate cookie
-	session, err := GetSession(c)
+	prevSession, err := GetSession(c)
 	if err == nil {
-		g.Sessions().DeleteSession(c, session.ID())
+		g.Sessions().DeleteSession(c, prevSession.ID())
+	} else {
+		g.Logger().Debug("Login: no previous session found", "error", err.Error())
 	}
 
 	s := g.Sessions().NewSession(c.Response(), user)
 
-	g.Logger().Info("Login: user signed in", "userID", s.UserID(), "username", s.Username())
+	g.Logger().Info("Login: user signed in", "userID", s.User().ID.String(), "username", s.User().Username)
 	return user, nil
 }

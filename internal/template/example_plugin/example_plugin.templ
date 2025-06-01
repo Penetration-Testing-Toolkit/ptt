@@ -1,11 +1,17 @@
 package templates
 
-templ Example(method, url string) {
+templ Example(method, url, username, userID, projectName, projectID string) {
 	<div class="text-center">
 		<div class="my-12">
 			<p class="font-bold text-xl underline">HTTP request proxied to plugin</p>
 			<p>HTTP request sent to:</p>
 			<p class="font-semibold">{ method } { url }</p>
+			<p>Username: <span class="font-semibold">{ username }</span></p>
+			<p>User ID: <span class="font-semibold">{ userID }</span></p>
+			if projectName != "" {
+				<p>Project Name: <span class="font-semibold">{ projectName }</span></p>
+				<p>Project ID: <span class="font-semibold">{ projectID }</span></p>
+			}
 		</div>
 		<div class="my-12">
 			<p class="font-bold text-xl underline">POST request using Alpine AJAX</p>

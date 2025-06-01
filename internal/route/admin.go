@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/template"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
@@ -17,9 +17,9 @@ const maxUsernameLength = 20
 const minPasswordLength = 8
 const maxPasswordLength = 72 // bcrypt password cannot exceed 72 bytes
 
-// GetAdmin "GET /admin/".
+// GetAdmin "GET /admin".
 func GetAdmin(c echo.Context, g *app.Global) Response {
-	// Get initial users from controller
+	// Get list of users from controller
 	users, err := controller.GetUsers(c, g, 10, 0)
 	if err != nil {
 		return Response{
@@ -27,8 +27,10 @@ func GetAdmin(c echo.Context, g *app.Global) Response {
 		}
 	}
 
-	usersT := usersToTemplateUsers(users)
+	// Convert models
+	usersTempl := usersToTempl(users)
 
+	// Get CSRF from echo.Context
 	csrf, err := getCSRF(c)
 	if err != nil {
 		return Response{
@@ -37,7 +39,7 @@ func GetAdmin(c echo.Context, g *app.Global) Response {
 	}
 
 	return Response{
-		Component: Layout(c, g, templates.GetAdmin(csrf, usersT, 10, 0)),
+		Component: Layout(c, g, template.GetAdmin(csrf, usersTempl, 10, 0)),
 	}
 }
 
@@ -62,13 +64,13 @@ func PostCreateUser(c echo.Context, g *app.Global) Response {
 	if user == nil {
 		return Response{
 			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error("username already exists"),
+			Component:  template.Error("username already exists"),
 		}
 	}
 
 	// Success creating new user
 	return Response{
-		Component: templates.AdminCreateUserSuccess(),
+		Component: template.CreateUserSuccess(),
 	}
 }
 
@@ -129,12 +131,12 @@ func PostChangePassword(c echo.Context, g *app.Global) Response {
 	if !success {
 		return Response{
 			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error("password was not updated"),
+			Component:  template.Error("password was not updated"),
 		}
 	}
 
 	return Response{
-		Component: templates.AdminChangePasswordSuccess(),
+		Component: template.ChangePasswordSuccess(),
 	}
 }
 
@@ -202,8 +204,10 @@ func GetUsers(c echo.Context, g *app.Global) Response {
 		}
 	}
 
-	usersT := usersToTemplateUsers(users)
+	// Convert models
+	usersTempl := usersToTempl(users)
 
+	// Get CSRF from echo.Context
 	csrf, err := getCSRF(c)
 	if err != nil {
 		return Response{
@@ -213,7 +217,7 @@ func GetUsers(c echo.Context, g *app.Global) Response {
 
 	// Success creating new user
 	return Response{
-		Component: templates.GetUsers(csrf, usersT, query.PageSize, query.Page),
+		Component: template.GetUsers(csrf, usersTempl, query.PageSize, query.Page),
 	}
 }
 
@@ -256,12 +260,12 @@ func PostDeleteUser(c echo.Context, g *app.Global) Response {
 	if !success {
 		return Response{
 			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error("no user was deleted"),
+			Component:  template.Error("no user was deleted"),
 		}
 	}
 
 	return Response{
-		Component: templates.AdminDeleteUserSuccess(),
+		Component: template.DeleteUserSuccess(),
 	}
 }
 

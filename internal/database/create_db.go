@@ -10,11 +10,19 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var schema = `CREATE TABLE IF NOT EXISTS users (
+var schema = `
+CREATE TABLE IF NOT EXISTS users (
 	id TEXT PRIMARY KEY NOT NULL,
 	username TEXT NOT NULL UNIQUE,
 	hash BLOB NOT NULL,
 	is_admin INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+	id TEXT PRIMARY KEY NOT NULL,
+	name TEXT NOT NULL UNIQUE,
+	owner_id TEXT NOT NULL,
+	FOREIGN KEY (owner_id) REFERENCES users(id)
 );`
 
 func SetupDB(l hclog.Logger) (*sqlx.DB, error) {

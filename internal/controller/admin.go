@@ -3,14 +3,14 @@ package controller
 import (
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/database"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/models"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func CreateUser(c echo.Context, g *app.Global,
-	username, password string, isAdmin bool) (*models.User, error) {
+	username, password string, isAdmin bool) (*model.User, error) {
 
 	// Check if username is already in use
 	exists, err := database.GetUserByName(c.Request().Context(), g, username)
@@ -29,7 +29,7 @@ func CreateUser(c echo.Context, g *app.Global,
 		return nil, err
 	}
 
-	user := models.NewUser(uuid.New(), username, hash, isAdmin)
+	user := model.NewUser(uuid.New(), username, hash, isAdmin)
 
 	err = database.InsertUser(c.Request().Context(), g, user.ToDB())
 	if err != nil {
@@ -75,16 +75,16 @@ func ChangePassword(c echo.Context, g *app.Global,
 	return true, nil
 }
 
-func GetUsers(c echo.Context, g *app.Global, pageSize, page int) ([]*models.User, error) {
+func GetUsers(c echo.Context, g *app.Global, pageSize, page int) ([]*model.User, error) {
 	usersDB, err := database.GetUsers(c.Request().Context(), g, pageSize, page*pageSize)
 	if err != nil {
 		return nil, err
 	}
 
 	// Convert models
-	users := make([]*models.User, 0)
+	users := make([]*model.User, 0)
 	for _, uDB := range usersDB {
-		u, err := models.UserFromDB(uDB)
+		u, err := model.UserFromDB(uDB)
 		if err != nil {
 			return nil, err
 		}

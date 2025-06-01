@@ -66,7 +66,7 @@ func main() {
 	}
 
 	// Setup session manager
-	sessions := session.NewSessionManager(
+	sessManager := session.NewSessionManager(
 		time.Minute,  // GC every minute
 		3*time.Hour,  // Expire idle after 3 hours
 		12*time.Hour, // Expire absolute after 12 hours
@@ -85,7 +85,7 @@ func main() {
 		Static:   f,
 		Address:  address,
 		DB:       db,
-		Sessions: sessions,
+		Sessions: sessManager,
 		DevMode:  devMode,
 	})
 }

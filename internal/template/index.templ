@@ -1,6 +1,8 @@
 package templates
 
-templ GetIndex(modules []*Module, user *User) {
+import "github.com/Penetration-Testing-Toolkit/ptt/internal/model"
+
+templ GetIndex(modules []*model.ModuleTempl, user *model.UserTempl) {
 	<div id="content" class="my-3 text-lg">
 		<div class="m-4 text-center font-bold text-xl">Welcome, { user.Username }.</div>
 		<div class="m-4 text-center font-bold text-xl underline">Loaded Plugins</div>

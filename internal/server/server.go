@@ -8,7 +8,7 @@ import (
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/plugin"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/route"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/session"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/template"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
 	"github.com/hashicorp/go-hclog"
 	"github.com/jmoiron/sqlx"
@@ -99,15 +99,15 @@ func Start(cfg *Config) {
 		// Common error codes have their own page
 		switch code {
 		case http.StatusUnauthorized:
-			err = route.Layout(c, g, templates.ErrorPage(http.StatusUnauthorized, "Unauthorized", message)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, template.ErrorPage(http.StatusUnauthorized, "Unauthorized", message)).Render(c.Request().Context(), c.Response())
 		case http.StatusForbidden:
-			err = route.Layout(c, g, templates.ErrorPage(http.StatusForbidden, "Forbidden", message)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, template.ErrorPage(http.StatusForbidden, "Forbidden", message)).Render(c.Request().Context(), c.Response())
 		case http.StatusNotFound:
-			err = route.Layout(c, g, templates.ErrorPage(http.StatusNotFound, "Not Found", message)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, template.ErrorPage(http.StatusNotFound, "Not Found", message)).Render(c.Request().Context(), c.Response())
 		case http.StatusInternalServerError:
 			fallthrough
 		default:
-			err = route.Layout(c, g, templates.ErrorPage(http.StatusInternalServerError, "Internal Server Error", message)).Render(c.Request().Context(), c.Response())
+			err = route.Layout(c, g, template.ErrorPage(http.StatusInternalServerError, "Internal Server Error", message)).Render(c.Request().Context(), c.Response())
 		}
 
 		if err == nil {

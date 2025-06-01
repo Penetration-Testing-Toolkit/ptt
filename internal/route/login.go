@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/controller"
-	"github.com/Penetration-Testing-Toolkit/ptt/internal/templates"
+	"github.com/Penetration-Testing-Toolkit/ptt/internal/template"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
@@ -14,7 +14,7 @@ import (
 // GetLogin "GET /login".
 func GetLogin(c echo.Context, g *app.Global) Response {
 	return Response{
-		Component: Layout(c, g, templates.GetLogin()),
+		Component: Layout(c, g, template.GetLogin()),
 	}
 }
 
@@ -33,7 +33,7 @@ func PostLogin(c echo.Context, g *app.Global) Response {
 	if err != nil {
 		return Response{
 			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error(failed),
+			Component:  template.Error(failed),
 		}
 	}
 
@@ -41,13 +41,13 @@ func PostLogin(c echo.Context, g *app.Global) Response {
 	if user == nil {
 		return Response{
 			StatusCode: http.StatusUnprocessableEntity,
-			Component:  templates.Error(failed),
+			Component:  template.Error(failed),
 		}
 	}
 
 	return Response{
 		StatusCode: http.StatusFound,
-		Redirect:   "/",
+		Redirect:   "/project",
 	}
 }
 
@@ -78,11 +78,10 @@ func (f *LoginForm) validate(_ context.Context) (problems []string) {
 // GetSignOut "GET /sign-out".
 func GetSignOut(c echo.Context, g *app.Global) Response {
 	// Delete previous session
-	s, err := controller.GetSession(c)
+	prev, err := controller.GetSession(c)
 	if err == nil {
-		g.Logger().Info("signing out", "userID", s.UserID(), "username", s.Username(),
-			"username", s.Username())
-		g.Sessions().DeleteSession(c, s.ID())
+		g.Logger().Info("signing out", "userID", prev.User().ID.String(), "username", prev.User().Username)
+		g.Sessions().DeleteSession(c, prev.ID())
 	} else {
 		g.Logger().Debug("GetSignOut: error getting session", "error", err.Error())
 	}
