@@ -64,6 +64,11 @@ environment. See [Options](#options) for information on launch options. Make
 sure plugins are placed in the `./plugins` directory and PTT automatically
 discover and attempt to run them.
 
+## Default User Account
+
+- Username: `root`
+- Password: `changeme!!`
+
 ## Options
 
 - Use Environment Variables before running PTT to use these options.
