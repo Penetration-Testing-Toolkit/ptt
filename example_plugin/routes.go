@@ -78,7 +78,7 @@ func (m *ModuleExample) index(ctx context.Context, req *http.Request) (*shared.R
 	projectID := req.Header.Get("PTT-Project-ID")
 
 	// Note that we can pass an http.Header that will be seen from the frontend client
-	return helper(ctx, templates.Example(req.Method, req.URL.String(),
+	return helper(ctx, template.Example(req.Method, req.URL.String(),
 		username, userID, projectName, projectID),
 		http.StatusOK, http.Header{"Example": {"Hello World!"}})
 }
@@ -91,14 +91,14 @@ func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Res
 		for _, s := range strings.Split(numStr, ",") {
 			n, err := strconv.Atoi(strings.TrimSpace(s))
 			if err != nil {
-				return helper(ctx, templates.Error("'"+s+"' is not an integer"),
+				return helper(ctx, template.Error("'"+s+"' is not an integer"),
 					http.StatusUnprocessableEntity, nil)
 			}
 			sum += n
 		}
 	}
 
-	return helper(ctx, templates.Numbers(strconv.Itoa(sum)),
+	return helper(ctx, template.Numbers(strconv.Itoa(sum)),
 		http.StatusOK, nil)
 }
 

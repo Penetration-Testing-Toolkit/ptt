@@ -1,4 +1,4 @@
-package templates
+package template
 
 import "github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 
@@ -8,8 +8,8 @@ templ GetIndex(modules []*model.ModuleTempl, user *model.UserTempl) {
 		<div class="m-4 text-center font-bold text-xl underline">Loaded Plugins</div>
 		<ul class="text-center">
 			for _, m := range modules {
-				<li>
-					<a href={ templ.URL(m.URL + "/index") } class="btn m-4">
+				<li class="m-4">
+					<a href={ templ.URL(m.URL + "/index") } class="btn">
 						{ m.Name } (Version { m.Version })
 					</a>
 				</li>
