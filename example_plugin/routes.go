@@ -3,8 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/template/example_plugin"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
+	"github.com/Penetration-Testing-Toolkit/ptt/shared/proto"
 	"github.com/a-h/templ"
 	"github.com/hashicorp/go-hclog"
 	"net/http"
@@ -72,15 +75,47 @@ func (m *ModuleExample) index(ctx context.Context, req *http.Request) (*shared.R
 		}
 	}
 
-	username := req.Header.Get("PTT-Username")
-	userID := req.Header.Get("PTT-User-ID")
-	projectName := req.Header.Get("PTT-Project-Name")
-	projectID := req.Header.Get("PTT-Project-ID")
+	// PTT passes user & project info in request headers
+	username := req.Header.Get(shared.PTTUsername)
+	userID := req.Header.Get(shared.PTTUserID)
+	projectName := req.Header.Get(shared.PTTProjectName)
+	projectID := req.Header.Get(shared.PTTProjectID)
+
+	// Query PTT database store for previously stored value
+	key := fmt.Sprintf("%s:%s", userID, projectID)
+
+	// Send the "Get" request over the gRPC client
+	resp, err := storeClient.Get(ctx, &proto.GetRequest{
+		PluginId: info.ID,
+		Key:      key,
+	})
+	if err != nil {
+		err = fmt.Errorf("error sending Get request to store: %w", err)
+		m.logger.Error(err.Error())
+		return nil, err
+	}
+
+	// Convert data from JSON (stored as []byte) back to int
+	val := new(data)
+	if len(resp.Value) > 0 {
+		err = json.Unmarshal(resp.Value, &val)
+		if err != nil {
+			err = fmt.Errorf("error unmarshaling data: %w", err)
+			m.logger.Error(err.Error())
+			return nil, err
+		}
+	} else {
+		m.logger.Debug("Get response value was empty")
+	}
 
 	// Note that we can pass an http.Header that will be seen from the frontend client
 	return helper(ctx, template.Example(req.Method, req.URL.String(),
-		username, userID, projectName, projectID),
+		username, userID, projectName, projectID, val.Sum),
 		http.StatusOK, http.Header{"Example": {"Hello World!"}})
+}
+
+type data struct {
+	Sum int `json:"sum"`
 }
 
 // sum "POST /sum" example of an http.MethodPost request.
@@ -96,6 +131,32 @@ func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Res
 			}
 			sum += n
 		}
+	}
+
+	// We want to save this value to the PTT database store
+	// Create key based on user & project
+	userID := req.Header.Get(shared.PTTUserID)
+	projectID := req.Header.Get(shared.PTTProjectID)
+	key := fmt.Sprintf("%s:%s", userID, projectID)
+
+	// Convert data we want to store into JSON (stored as []byte)
+	val, err := json.Marshal(data{Sum: sum})
+	if err != nil {
+		err = fmt.Errorf("error marshaling data: %w", err)
+		m.logger.Error(err.Error())
+		return nil, err
+	}
+
+	// Send the "Set" request over the gRPC client
+	_, err = storeClient.Set(ctx, &proto.SetRequest{
+		PluginId: info.ID,
+		Key:      key,
+		Value:    val,
+	})
+	if err != nil {
+		err = fmt.Errorf("error sending Set request to store: %w", err)
+		m.logger.Error(err.Error())
+		return nil, err
 	}
 
 	return helper(ctx, template.Numbers(strconv.Itoa(sum)),

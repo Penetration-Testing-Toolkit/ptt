@@ -142,9 +142,17 @@ func Start(cfg *Config) {
 	// Setup server's routes
 	setupRoutes(e, g)
 
+	// Setup gRPC store server for plugins to use
+	storeServ, storeServerAddr, err := startStoreServer(g)
+	if err != nil {
+		l.Error("failed to start store server", "error", err.Error())
+		return
+	}
+	defer storeServ.GracefulStop() // NOTE: May need to switch to Stop()
+
 	// Start plugin discovery
 	shared.Logger = l
-	plugins, cleanup := plugin.StartPlugins(l)
+	plugins, cleanup := plugin.StartPlugins(l, storeServerAddr)
 	defer cleanup(l, plugins)
 
 	// Register plugin routes

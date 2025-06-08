@@ -31,13 +31,13 @@ func RegisterPluginRoutes(logger hclog.Logger, e *echo.Echo, g *app.Global, plug
 			}
 
 			user := sess.User()
-			c.Request().Header.Add("PTT-Username", user.Username)
-			c.Request().Header.Add("PTT-User-ID", user.ID.String())
+			c.Request().Header.Add(shared.PTTUsername, user.Username)
+			c.Request().Header.Add(shared.PTTUserID, user.ID.String())
 
 			project := sess.Project()
 			if project != nil {
-				c.Request().Header.Add("PTT-Project-Name", project.Name)
-				c.Request().Header.Add("PTT-Project-ID", project.ID.String())
+				c.Request().Header.Add(shared.PTTProjectName, project.Name)
+				c.Request().Header.Add(shared.PTTProjectID, project.ID.String())
 			}
 
 			if !r.UseSSE {

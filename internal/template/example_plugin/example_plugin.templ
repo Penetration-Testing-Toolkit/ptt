@@ -1,6 +1,6 @@
 package template
 
-templ Example(method, url, username, userID, projectName, projectID string) {
+templ Example(method, url, username, userID, projectName, projectID string, prevVal int) {
 	<div class="text-center">
 		<div class="my-12">
 			<p class="font-bold text-xl underline">HTTP request proxied to plugin</p>
@@ -21,6 +21,7 @@ templ Example(method, url, username, userID, projectName, projectID string) {
 				<input id="numbers-input" name="numbers" type="text" autocomplete="off" class="p-2 bg-emerald-100"/>
 				<button type="submit" class="btn">Submit</button>
 			</form>
+			<p>Saved value: { prevVal }</p>
 			<p id="error"></p>
 		</div>
 		<div

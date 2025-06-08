@@ -57,6 +57,50 @@ func (*Empty) Descriptor() ([]byte, []int) {
 	return file_shared_proto_module_proto_rawDescGZIP(), []int{0}
 }
 
+type RegisterRequest struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	StoreServerAddress string                 `protobuf:"bytes,1,opt,name=store_server_address,json=storeServerAddress,proto3" json:"store_server_address,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *RegisterRequest) Reset() {
+	*x = RegisterRequest{}
+	mi := &file_shared_proto_module_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterRequest) ProtoMessage() {}
+
+func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_module_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
+func (*RegisterRequest) Descriptor() ([]byte, []int) {
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *RegisterRequest) GetStoreServerAddress() string {
+	if x != nil {
+		return x.StoreServerAddress
+	}
+	return ""
+}
+
 type RegisterResponse struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Id            string                    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -69,7 +113,7 @@ type RegisterResponse struct {
 
 func (x *RegisterResponse) Reset() {
 	*x = RegisterResponse{}
-	mi := &file_shared_proto_module_proto_msgTypes[1]
+	mi := &file_shared_proto_module_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -81,7 +125,7 @@ func (x *RegisterResponse) String() string {
 func (*RegisterResponse) ProtoMessage() {}
 
 func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[1]
+	mi := &file_shared_proto_module_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -94,7 +138,7 @@ func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_module_proto_rawDescGZIP(), []int{1}
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RegisterResponse) GetId() string {
@@ -134,7 +178,7 @@ type Header struct {
 
 func (x *Header) Reset() {
 	*x = Header{}
-	mi := &file_shared_proto_module_proto_msgTypes[2]
+	mi := &file_shared_proto_module_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -146,7 +190,7 @@ func (x *Header) String() string {
 func (*Header) ProtoMessage() {}
 
 func (x *Header) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[2]
+	mi := &file_shared_proto_module_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -159,7 +203,7 @@ func (x *Header) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Header.ProtoReflect.Descriptor instead.
 func (*Header) Descriptor() ([]byte, []int) {
-	return file_shared_proto_module_proto_rawDescGZIP(), []int{2}
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Header) GetHeader() map[string]*Header_Value {
@@ -181,7 +225,7 @@ type Request struct {
 
 func (x *Request) Reset() {
 	*x = Request{}
-	mi := &file_shared_proto_module_proto_msgTypes[3]
+	mi := &file_shared_proto_module_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -193,7 +237,7 @@ func (x *Request) String() string {
 func (*Request) ProtoMessage() {}
 
 func (x *Request) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[3]
+	mi := &file_shared_proto_module_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -206,7 +250,7 @@ func (x *Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Request.ProtoReflect.Descriptor instead.
 func (*Request) Descriptor() ([]byte, []int) {
-	return file_shared_proto_module_proto_rawDescGZIP(), []int{3}
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Request) GetMethod() string {
@@ -248,7 +292,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_shared_proto_module_proto_msgTypes[4]
+	mi := &file_shared_proto_module_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -260,7 +304,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[4]
+	mi := &file_shared_proto_module_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -273,7 +317,7 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Response.ProtoReflect.Descriptor instead.
 func (*Response) Descriptor() ([]byte, []int) {
-	return file_shared_proto_module_proto_rawDescGZIP(), []int{4}
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Response) GetStatus() int32 {
@@ -297,6 +341,162 @@ func (x *Response) GetBody() string {
 	return ""
 }
 
+type GetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PluginId      string                 `protobuf:"bytes,1,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRequest) Reset() {
+	*x = GetRequest{}
+	mi := &file_shared_proto_module_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRequest) ProtoMessage() {}
+
+func (x *GetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_module_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRequest.ProtoReflect.Descriptor instead.
+func (*GetRequest) Descriptor() ([]byte, []int) {
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetRequest) GetPluginId() string {
+	if x != nil {
+		return x.PluginId
+	}
+	return ""
+}
+
+func (x *GetRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type GetResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Value         []byte                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetResponse) Reset() {
+	*x = GetResponse{}
+	mi := &file_shared_proto_module_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetResponse) ProtoMessage() {}
+
+func (x *GetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_module_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetResponse.ProtoReflect.Descriptor instead.
+func (*GetResponse) Descriptor() ([]byte, []int) {
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetResponse) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type SetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PluginId      string                 `protobuf:"bytes,1,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Value         []byte                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetRequest) Reset() {
+	*x = SetRequest{}
+	mi := &file_shared_proto_module_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetRequest) ProtoMessage() {}
+
+func (x *SetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_module_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetRequest.ProtoReflect.Descriptor instead.
+func (*SetRequest) Descriptor() ([]byte, []int) {
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SetRequest) GetPluginId() string {
+	if x != nil {
+		return x.PluginId
+	}
+	return ""
+}
+
+func (x *SetRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *SetRequest) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
 type RegisterResponse_Route struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Method        string                 `protobuf:"bytes,1,opt,name=method,proto3" json:"method,omitempty"`
@@ -308,7 +508,7 @@ type RegisterResponse_Route struct {
 
 func (x *RegisterResponse_Route) Reset() {
 	*x = RegisterResponse_Route{}
-	mi := &file_shared_proto_module_proto_msgTypes[5]
+	mi := &file_shared_proto_module_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -320,7 +520,7 @@ func (x *RegisterResponse_Route) String() string {
 func (*RegisterResponse_Route) ProtoMessage() {}
 
 func (x *RegisterResponse_Route) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[5]
+	mi := &file_shared_proto_module_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -333,7 +533,7 @@ func (x *RegisterResponse_Route) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResponse_Route.ProtoReflect.Descriptor instead.
 func (*RegisterResponse_Route) Descriptor() ([]byte, []int) {
-	return file_shared_proto_module_proto_rawDescGZIP(), []int{1, 0}
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *RegisterResponse_Route) GetMethod() string {
@@ -366,7 +566,7 @@ type Header_Value struct {
 
 func (x *Header_Value) Reset() {
 	*x = Header_Value{}
-	mi := &file_shared_proto_module_proto_msgTypes[6]
+	mi := &file_shared_proto_module_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -378,7 +578,7 @@ func (x *Header_Value) String() string {
 func (*Header_Value) ProtoMessage() {}
 
 func (x *Header_Value) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[6]
+	mi := &file_shared_proto_module_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +591,7 @@ func (x *Header_Value) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Header_Value.ProtoReflect.Descriptor instead.
 func (*Header_Value) Descriptor() ([]byte, []int) {
-	return file_shared_proto_module_proto_rawDescGZIP(), []int{2, 0}
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *Header_Value) GetValues() []string {
@@ -406,7 +606,9 @@ var File_shared_proto_module_proto protoreflect.FileDescriptor
 const file_shared_proto_module_proto_rawDesc = "" +
 	"\n" +
 	"\x19shared/proto/module.proto\x12\x05proto\"\a\n" +
-	"\x05Empty\"\xd5\x01\n" +
+	"\x05Empty\"C\n" +
+	"\x0fRegisterRequest\x120\n" +
+	"\x14store_server_address\x18\x01 \x01(\tR\x12storeServerAddress\"\xd5\x01\n" +
 	"\x10RegisterResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -431,11 +633,25 @@ const file_shared_proto_module_proto_rawDesc = "" +
 	"\bResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\x05R\x06status\x12%\n" +
 	"\x06header\x18\x02 \x01(\v2\r.proto.HeaderR\x06header\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\tR\x04body2\x96\x01\n" +
-	"\x06Module\x121\n" +
-	"\bRegister\x12\f.proto.Empty\x1a\x17.proto.RegisterResponse\x12)\n" +
+	"\x04body\x18\x03 \x01(\tR\x04body\";\n" +
+	"\n" +
+	"GetRequest\x12\x1b\n" +
+	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"#\n" +
+	"\vGetResponse\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\"Q\n" +
+	"\n" +
+	"SetRequest\x12\x1b\n" +
+	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\fR\x05value2\xa0\x01\n" +
+	"\x06Module\x12;\n" +
+	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x17.proto.RegisterResponse\x12)\n" +
 	"\x06Handle\x12\x0e.proto.Request\x1a\x0f.proto.Response\x12.\n" +
-	"\tHandleSSE\x12\x0e.proto.Request\x1a\x0f.proto.Response0\x01B\tZ\a./protob\x06proto3"
+	"\tHandleSSE\x12\x0e.proto.Request\x1a\x0f.proto.Response0\x012]\n" +
+	"\x05Store\x12,\n" +
+	"\x03Get\x12\x11.proto.GetRequest\x1a\x12.proto.GetResponse\x12&\n" +
+	"\x03Set\x12\x11.proto.SetRequest\x1a\f.proto.EmptyB\tZ\a./protob\x06proto3"
 
 var (
 	file_shared_proto_module_proto_rawDescOnce sync.Once
@@ -449,34 +665,42 @@ func file_shared_proto_module_proto_rawDescGZIP() []byte {
 	return file_shared_proto_module_proto_rawDescData
 }
 
-var file_shared_proto_module_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_shared_proto_module_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_shared_proto_module_proto_goTypes = []any{
 	(*Empty)(nil),                  // 0: proto.Empty
-	(*RegisterResponse)(nil),       // 1: proto.RegisterResponse
-	(*Header)(nil),                 // 2: proto.Header
-	(*Request)(nil),                // 3: proto.Request
-	(*Response)(nil),               // 4: proto.Response
-	(*RegisterResponse_Route)(nil), // 5: proto.RegisterResponse.Route
-	(*Header_Value)(nil),           // 6: proto.Header.Value
-	nil,                            // 7: proto.Header.HeaderEntry
+	(*RegisterRequest)(nil),        // 1: proto.RegisterRequest
+	(*RegisterResponse)(nil),       // 2: proto.RegisterResponse
+	(*Header)(nil),                 // 3: proto.Header
+	(*Request)(nil),                // 4: proto.Request
+	(*Response)(nil),               // 5: proto.Response
+	(*GetRequest)(nil),             // 6: proto.GetRequest
+	(*GetResponse)(nil),            // 7: proto.GetResponse
+	(*SetRequest)(nil),             // 8: proto.SetRequest
+	(*RegisterResponse_Route)(nil), // 9: proto.RegisterResponse.Route
+	(*Header_Value)(nil),           // 10: proto.Header.Value
+	nil,                            // 11: proto.Header.HeaderEntry
 }
 var file_shared_proto_module_proto_depIdxs = []int32{
-	5, // 0: proto.RegisterResponse.routes:type_name -> proto.RegisterResponse.Route
-	7, // 1: proto.Header.header:type_name -> proto.Header.HeaderEntry
-	2, // 2: proto.Request.header:type_name -> proto.Header
-	2, // 3: proto.Response.header:type_name -> proto.Header
-	6, // 4: proto.Header.HeaderEntry.value:type_name -> proto.Header.Value
-	0, // 5: proto.Module.Register:input_type -> proto.Empty
-	3, // 6: proto.Module.Handle:input_type -> proto.Request
-	3, // 7: proto.Module.HandleSSE:input_type -> proto.Request
-	1, // 8: proto.Module.Register:output_type -> proto.RegisterResponse
-	4, // 9: proto.Module.Handle:output_type -> proto.Response
-	4, // 10: proto.Module.HandleSSE:output_type -> proto.Response
-	8, // [8:11] is the sub-list for method output_type
-	5, // [5:8] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	9,  // 0: proto.RegisterResponse.routes:type_name -> proto.RegisterResponse.Route
+	11, // 1: proto.Header.header:type_name -> proto.Header.HeaderEntry
+	3,  // 2: proto.Request.header:type_name -> proto.Header
+	3,  // 3: proto.Response.header:type_name -> proto.Header
+	10, // 4: proto.Header.HeaderEntry.value:type_name -> proto.Header.Value
+	1,  // 5: proto.Module.Register:input_type -> proto.RegisterRequest
+	4,  // 6: proto.Module.Handle:input_type -> proto.Request
+	4,  // 7: proto.Module.HandleSSE:input_type -> proto.Request
+	6,  // 8: proto.Store.Get:input_type -> proto.GetRequest
+	8,  // 9: proto.Store.Set:input_type -> proto.SetRequest
+	2,  // 10: proto.Module.Register:output_type -> proto.RegisterResponse
+	5,  // 11: proto.Module.Handle:output_type -> proto.Response
+	5,  // 12: proto.Module.HandleSSE:output_type -> proto.Response
+	7,  // 13: proto.Store.Get:output_type -> proto.GetResponse
+	0,  // 14: proto.Store.Set:output_type -> proto.Empty
+	10, // [10:15] is the sub-list for method output_type
+	5,  // [5:10] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_shared_proto_module_proto_init() }
@@ -490,9 +714,9 @@ func file_shared_proto_module_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shared_proto_module_proto_rawDesc), len(file_shared_proto_module_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_shared_proto_module_proto_goTypes,
 		DependencyIndexes: file_shared_proto_module_proto_depIdxs,

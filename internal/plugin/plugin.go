@@ -59,7 +59,9 @@ func ModulesToTempl(modules []*ModulePlugin) []*model.ModuleTempl {
 // StartPlugins begins the process of plugin discovery and starting plugins.
 // Returns a slice of ModulePlugin, and a cleanup function that should be a called by defer.
 // This way, the clients are cleaned when the server stops, rather than when this function returns.
-func StartPlugins(logger hclog.Logger) (plugins []*ModulePlugin, cleanupFunc func(hclog.Logger, []*ModulePlugin)) {
+func StartPlugins(logger hclog.Logger, storeServerAddr string) (plugins []*ModulePlugin,
+	cleanupFunc func(hclog.Logger, []*ModulePlugin)) {
+
 	plugins = make([]*ModulePlugin, 0)
 
 	// Get potential plugin executable paths
@@ -67,7 +69,7 @@ func StartPlugins(logger hclog.Logger) (plugins []*ModulePlugin, cleanupFunc fun
 
 	// Attempt to start these plugin executables & get their info
 	for _, file := range files {
-		p, err := startPlugin(logger, file)
+		p, err := startPlugin(logger, file, storeServerAddr)
 		if err != nil {
 			logger.Error("failed to start potential plugin", "filename", file, "error", err.Error())
 		} else {
@@ -111,7 +113,7 @@ func discoverPlugins(logger hclog.Logger) []string {
 }
 
 // startPlugin starts plugin provided by filename.
-func startPlugin(logger hclog.Logger, filename string) (*ModulePlugin, error) {
+func startPlugin(logger hclog.Logger, filename string, storeServerAddr string) (*ModulePlugin, error) {
 	// We're a host, start by launching the plugin process
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig:  shared.HandshakeConfig,
@@ -139,7 +141,7 @@ func startPlugin(logger hclog.Logger, filename string) (*ModulePlugin, error) {
 	// Now we have a real shared.Module interface to work with
 
 	// Get plugin's shared.ModuleInfo
-	info, err := module.Register(context.Background())
+	info, err := module.Register(context.Background(), storeServerAddr)
 	if err != nil {
 		return nil, err
 	}

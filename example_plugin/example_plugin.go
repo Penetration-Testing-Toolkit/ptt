@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/shared"
+	"github.com/Penetration-Testing-Toolkit/ptt/shared/proto"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
 	"strconv"
@@ -35,6 +38,9 @@ var router = &Router{
 	sseRoutes: make(map[string]map[string]SSEHandlerFunc),
 }
 
+var storeConn *grpc.ClientConn
+var storeClient proto.StoreClient
+
 // ModuleExample is a real implementation of a shared.Module plugin.
 // It uses hclog.Logger for logging to the hashicorp/go-plugin system.
 type ModuleExample struct {
@@ -42,7 +48,18 @@ type ModuleExample struct {
 }
 
 // Register implements shared.Module's Register.
-func (m *ModuleExample) Register(_ context.Context) (*shared.ModuleInfo, error) {
+func (m *ModuleExample) Register(_ context.Context, storeServerAddr string) (*shared.ModuleInfo, error) {
+	m.logger.Debug("Register: storeServerAddr", "address", storeServerAddr)
+
+	socketAddr := fmt.Sprintf("unix://%s", storeServerAddr)
+	var err error
+	storeConn, err = grpc.NewClient(socketAddr, []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}...)
+	if err != nil {
+		return nil, fmt.Errorf("error creating plugin's store gRPC client: %w", err)
+	}
+
+	storeClient = proto.NewStoreClient(storeConn)
+
 	return info, nil
 }
 
@@ -97,6 +114,14 @@ func main() {
 
 	// Setup plugin's routes
 	module.setupRoutes()
+
+	// Make sure store gRPC.ClientConn closes before shutdown
+	defer func() {
+		err = storeConn.Close()
+		if err != nil {
+			logger.Error("error closing plugin's grpc.ClientConn to store", "error", err.Error())
+		}
+	}()
 
 	// Setup hashicorp/go-plugin stuff
 	shared.Logger = logger

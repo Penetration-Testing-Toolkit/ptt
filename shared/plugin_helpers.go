@@ -9,6 +9,13 @@ import (
 	"os"
 )
 
+const (
+	PTTUsername    = "PTT-Username"
+	PTTUserID      = "PTT-User-ID"
+	PTTProjectName = "PTT-Project-Name"
+	PTTProjectID   = "PTT-Project-ID"
+)
+
 // LoggerOptions are common options that server & plugins can use as defaults.
 var LoggerOptions = &hclog.LoggerOptions{
 	Level:       hclog.Info,

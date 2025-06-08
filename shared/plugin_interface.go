@@ -75,7 +75,7 @@ type Response struct {
 type Module interface {
 	// Register returns a ModuleInfo to the server.
 	// It is the first thing called by the server to set up the Module plugin.
-	Register(ctx context.Context) (*ModuleInfo, error)
+	Register(ctx context.Context, storeServerAddr string) (*ModuleInfo, error)
 
 	// Handle is the primary function of a Module plugin; to handle an http.Request proxied to the plugin.
 	Handle(ctx context.Context, req *http.Request) (*Response, error)
@@ -87,13 +87,13 @@ type Module interface {
 
 // ModuleGRPCClient is a gRPC client implementation of proto.ModuleClient.
 // It implements the Module interface.
-// Its methods are how the host app's gRPC client will call a plugin's ModuleGRPCServer.
+// Its methods are how the host PTT app's gRPC client will call a plugin's ModuleGRPCServer.
 type ModuleGRPCClient struct {
 	client proto.ModuleClient
 }
 
-func (c *ModuleGRPCClient) Register(ctx context.Context) (*ModuleInfo, error) {
-	resp, err := c.client.Register(ctx, &proto.Empty{})
+func (c *ModuleGRPCClient) Register(ctx context.Context, storeServerAddr string) (*ModuleInfo, error) {
+	resp, err := c.client.Register(ctx, &proto.RegisterRequest{StoreServerAddress: storeServerAddr})
 	if err != nil {
 		return nil, err
 	}
@@ -212,8 +212,8 @@ type ModuleGRPCServer struct {
 	Impl Module
 }
 
-func (s *ModuleGRPCServer) Register(ctx context.Context, _ *proto.Empty) (*proto.RegisterResponse, error) {
-	info, err := s.Impl.Register(ctx)
+func (s *ModuleGRPCServer) Register(ctx context.Context, req *proto.RegisterRequest) (*proto.RegisterResponse, error) {
+	info, err := s.Impl.Register(ctx, req.StoreServerAddress)
 	if err != nil {
 		return nil, err
 	}
