@@ -145,23 +145,23 @@ func (c *ModuleGRPCClient) HandleSSE(ctx context.Context, req *http.Request) (ch
 	if err != nil {
 		return nil, err
 	}
-	Logger.Debug("sent HandleSSE request")
+	Logger.Trace("sent HandleSSE request")
 
 	// Listen for responses
 	ch := make(chan *Response, 1)
 	go func() {
-		Logger.Debug("SSE response listener started")
+		Logger.Trace("SSE response listener started")
 		for {
 			select {
 			case <-ctx.Done():
 				// Close connection
-				Logger.Debug("closing SSE gRPC streamClient", "cause", "ctx.Done() received")
+				Logger.Trace("closing SSE gRPC streamClient", "cause", "ctx.Done() received")
 				err = streamClient.CloseSend()
 				if err != nil {
 					Logger.Error("error from SSE gRPC streamClient.CloseSend()", "error", err.Error())
 				}
 
-				Logger.Debug("closing server's SSE channel", "cause", "ctx.Done() received")
+				Logger.Trace("closing server's SSE channel", "cause", "ctx.Done() received")
 				close(ch)
 				return
 			default:
@@ -169,14 +169,14 @@ func (c *ModuleGRPCClient) HandleSSE(ctx context.Context, req *http.Request) (ch
 				if err != nil {
 					st, ok := status.FromError(err)
 					if errors.Is(err, io.EOF) {
-						Logger.Debug("closing server's SSE channel",
+						Logger.Trace("closing server's SSE channel",
 							"cause", "SSE gRPC streamClient received EOF")
 					} else if ok && st.Code() == codes.Canceled {
-						Logger.Debug("closing server's SSE channel",
+						Logger.Trace("closing server's SSE channel",
 							"cause", "SSE canceled",
 							"code", st.Code(), "message", st.Message())
 					} else {
-						Logger.Debug("closing server's SSE channel",
+						Logger.Trace("closing server's SSE channel",
 							"cause", "error from SSE gRPC streamClient.Recv()",
 							"error", err.Error())
 					}
@@ -185,7 +185,7 @@ func (c *ModuleGRPCClient) HandleSSE(ctx context.Context, req *http.Request) (ch
 					return
 				}
 
-				Logger.Debug("SSE response received from stream client")
+				Logger.Trace("SSE response received from stream client")
 
 				ch <- &Response{
 					Status: int(res.GetStatus()),
@@ -193,7 +193,7 @@ func (c *ModuleGRPCClient) HandleSSE(ctx context.Context, req *http.Request) (ch
 					Body:   res.GetBody(),
 				}
 
-				Logger.Debug("SSE response sent to server's channel")
+				Logger.Trace("SSE response sent to server's channel")
 			}
 		}
 	}()
@@ -245,7 +245,7 @@ func (s *ModuleGRPCServer) Handle(ctx context.Context, req *proto.Request) (*pro
 }
 
 func (s *ModuleGRPCServer) HandleSSE(req *proto.Request, streamServer grpc.ServerStreamingServer[proto.Response]) error {
-	Logger.Debug("HandleSSE called")
+	Logger.Trace("HandleSSE called")
 
 	// streamServer is the gRPC server streamer
 	ctx := streamServer.Context()
@@ -255,14 +255,14 @@ func (s *ModuleGRPCServer) HandleSSE(req *proto.Request, streamServer grpc.Serve
 		return err
 	}
 
-	Logger.Debug("sending SSE request to plugin implementation")
+	Logger.Trace("sending SSE request to plugin implementation")
 	ch, err := s.Impl.HandleSSE(ctx, r)
 	if err != nil {
 		return err
 	}
 
 	for resp := range ch {
-		Logger.Debug("SSE response came through plugin's channel, relaying to app server")
+		Logger.Trace("SSE response came through plugin's channel, relaying to app server")
 		err = streamServer.Send(&proto.Response{
 			Status: int32(resp.Status),
 			Header: headerToProto(resp.Header),
@@ -273,7 +273,7 @@ func (s *ModuleGRPCServer) HandleSSE(req *proto.Request, streamServer grpc.Serve
 		}
 	}
 
-	Logger.Debug("done reading SSE responses from implementation")
+	Logger.Trace("done reading SSE responses from implementation")
 
 	return nil
 }

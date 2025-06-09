@@ -123,6 +123,22 @@ func ChangePassword(ctx context.Context, g *app.Global, hash, id string) error {
 	return nil
 }
 
+var transferProjectOwner = `
+UPDATE
+	projects
+SET
+	owner_id = $1
+WHERE
+	owner_id == $2
+;`
+
+var deleteUserFromStore = `
+DELETE FROM
+	store
+WHERE
+	project_id IS NULL AND user_id == $1
+;`
+
 var deleteUser = `
 DELETE FROM
 	users
@@ -131,13 +147,38 @@ WHERE
 ;`
 
 func DeleteUser(ctx context.Context, g *app.Global, id string) error {
-	result, err := g.DB().ExecContext(ctx, deleteUser, id)
+	// If user owned any projects, transfer ownership to "root" admin
+	root, err := GetUserByName(ctx, g, "root")
+	if err != nil {
+		return err
+	}
+
+	result, err := g.DB().ExecContext(ctx, transferProjectOwner, root.ID, id)
 	if err != nil {
 		return err
 	}
 
 	rows, err := result.RowsAffected()
-	g.Logger().Debug("delete user completed", "rowsAffected", rows)
+	g.Logger().Debug("DeleteUser: transfer project owner completed", "rowsAffected", rows)
+
+	// Delete user from store table where there is no project
+	// (i.e. value is associated with the user but not a project)
+	result, err = g.DB().ExecContext(ctx, deleteUserFromStore, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err = result.RowsAffected()
+	g.Logger().Debug("DeleteUser: delete user from store completed", "rowsAffected", rows)
+
+	// Delete user from users table
+	result, err = g.DB().ExecContext(ctx, deleteUser, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err = result.RowsAffected()
+	g.Logger().Debug("DeleteUser: delete user completed", "rowsAffected", rows)
 
 	return nil
 }

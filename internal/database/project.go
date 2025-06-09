@@ -104,6 +104,13 @@ func GetProjects(ctx context.Context, g *app.Global) ([]*model.ProjectDB, error)
 	return projects, nil
 }
 
+var deleteProjectFromStore = `
+DELETE FROM
+	store
+WHERE
+	project_id == $1
+;`
+
 var deleteProject = `
 DELETE FROM
 	projects
@@ -112,12 +119,22 @@ WHERE
 ;`
 
 func DeleteProject(ctx context.Context, g *app.Global, id string) error {
-	result, err := g.DB().ExecContext(ctx, deleteProject, id)
+	// Delete project from store table
+	result, err := g.DB().ExecContext(ctx, deleteProjectFromStore, id)
 	if err != nil {
 		return err
 	}
 
 	rows, err := result.RowsAffected()
+	g.Logger().Debug("delete project from store completed", "rowsAffected", rows)
+
+	// Delete project from projects table
+	result, err = g.DB().ExecContext(ctx, deleteProject, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err = result.RowsAffected()
 	g.Logger().Debug("delete project completed", "rowsAffected", rows)
 
 	return nil

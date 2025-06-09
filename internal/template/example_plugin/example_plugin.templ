@@ -1,6 +1,6 @@
 package template
 
-templ Example(method, url, username, userID, projectName, projectID string, prevVal int) {
+templ Example(method, url, username, userID, projectName, projectID string, userProjectSum, userSum, projectSum, pluginSum int) {
 	<div class="text-center">
 		<div class="my-12">
 			<p class="font-bold text-xl underline">HTTP request proxied to plugin</p>
@@ -16,12 +16,21 @@ templ Example(method, url, username, userID, projectName, projectID string, prev
 		<div class="my-12">
 			<p class="font-bold text-xl underline">POST request using Alpine AJAX</p>
 			<p id="numbers">Enter a list of integers (ex. 1,2,3)</p>
-			<form x-target="numbers error" method="post" action="/plugin/github.com/chronotrax/example_plugin/sum" class="p-2">
+			<form x-target="numbers totals error" method="post" action="/plugin/github.com/chronotrax/example_plugin/sum" class="p-2">
 				<label for="numbers-input">Numbers list:</label>
 				<input id="numbers-input" name="numbers" type="text" autocomplete="off" class="p-2 bg-emerald-100"/>
 				<button type="submit" class="btn">Submit</button>
 			</form>
-			<p>Saved value: { prevVal }</p>
+			<div id="totals">
+				if projectID != "" {
+					<p>User Sum In Project: { userProjectSum }</p>
+				}
+				<p>User Total Sum: { userSum }</p>
+				if projectID != "" {
+					<p>Project Total Sum: { projectSum }</p>
+				}
+				<p>Plugin Total Sum: { pluginSum }</p>
+			</div>
 			<p id="error"></p>
 		</div>
 		<div
@@ -55,10 +64,20 @@ templ Example(method, url, username, userID, projectName, projectID string, prev
 	</div>
 }
 
-templ Numbers(sum string) {
+templ Numbers(sum, userProjectSum, userSum, projectSum, pluginSum int, projectID string) {
 	<p id="numbers" class="font-semibold">
 		sum: { sum }
 	</p>
+	<div id="totals">
+		if projectID != "" {
+			<p>User Sum In Project: { userProjectSum }</p>
+		}
+		<p>User Total Sum: { userSum }</p>
+		if projectID != "" {
+			<p>Project Total Sum: { projectSum }</p>
+		}
+		<p>Plugin Total Sum: { pluginSum }</p>
+	</div>
 	<p id="error"></p>
 }
 

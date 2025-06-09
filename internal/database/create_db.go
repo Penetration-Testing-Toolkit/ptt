@@ -27,9 +27,13 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE TABLE IF NOT EXISTS store (
 	plugin_id TEXT NOT NULL,
+	user_id TEXT,
+	project_id TEXT,
 	key TEXT NOT NULL,
 	value BLOB NOT NULL,
-	PRIMARY KEY (plugin_id, key)
+	PRIMARY KEY (plugin_id, user_id, project_id, key),
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (project_id) REFERENCES projects(id)
 );`
 
 func SetupDB(l hclog.Logger) (*sqlx.DB, error) {

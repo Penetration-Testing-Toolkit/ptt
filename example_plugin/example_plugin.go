@@ -33,12 +33,16 @@ type Router struct {
 	sseRoutes map[string]map[string]SSEHandlerFunc
 }
 
+// Global instance of Router for this plugin to use.
 var router = &Router{
 	routes:    make(map[string]map[string]HandlerFunc),
 	sseRoutes: make(map[string]map[string]SSEHandlerFunc),
 }
 
+// grpc.ClientConn to the PTT database store grpc.Server.
 var storeConn *grpc.ClientConn
+
+// proto.StoreClient to use shared.Store functions hosted on the PTT gRPC server.
 var storeClient proto.StoreClient
 
 // ModuleExample is a real implementation of a shared.Module plugin.
@@ -71,7 +75,11 @@ func (m *ModuleExample) Handle(ctx context.Context, req *http.Request) (*shared.
 		return nil, fmt.Errorf("handler does not exist for route %v %v", req.Method, req.URL)
 	}
 
-	return handler(ctx, req)
+	resp, err := handler(ctx, req)
+	if err != nil {
+		m.logger.Error(err.Error())
+	}
+	return resp, err
 }
 
 // HandleSSE implements shared.Module's HandleSSE.

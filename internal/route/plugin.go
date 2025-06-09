@@ -75,11 +75,11 @@ func RegisterPluginRoutes(logger hclog.Logger, e *echo.Echo, g *app.Global, plug
 						return nil
 					case resp, ok := <-ch:
 						if !ok {
-							logger.Debug("SSE channel was closed")
+							logger.Trace("SSE channel was closed")
 							return nil
 						}
 
-						logger.Debug("SSE response came through server's channel", "status", resp.Status, "resp", resp.Body)
+						logger.Trace("SSE response came through server's channel", "status", resp.Status, "resp", resp.Body)
 
 						// Replace the existing response status & headers with plugin's response
 						registerHelper(c, resp)
@@ -92,7 +92,7 @@ func RegisterPluginRoutes(logger hclog.Logger, e *echo.Echo, g *app.Global, plug
 
 						// Sent response up to the frontend client
 						c.Response().Flush()
-						logger.Debug("SSE response flushed")
+						logger.Trace("SSE response flushed")
 					}
 				}
 			}

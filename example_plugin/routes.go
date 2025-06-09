@@ -51,7 +51,9 @@ func (m *ModuleExample) setupRoutes() {
 }
 
 // helper is a function to help with rendering the templ component & responding
-func helper(ctx context.Context, comp templ.Component, status int, header http.Header) (*shared.Response, error) {
+func helper(ctx context.Context, comp templ.Component, status int,
+	header http.Header) (*shared.Response, error) {
+
 	resp := &bytes.Buffer{}
 	err := comp.Render(ctx, resp)
 	if err != nil {
@@ -63,6 +65,58 @@ func helper(ctx context.Context, comp templ.Component, status int, header http.H
 		Header: header,
 		Body:   resp.String(),
 	}, nil
+}
+
+// getHelper is a function to help with sending "Get" requests to the PTT database store.
+func getHelper[T any](ctx context.Context, userID, projectID string) (*T, error) {
+	// Send the "Get" request over the gRPC client
+	resp, err := storeClient.Get(ctx, &proto.GetRequest{
+		PluginId:  info.ID,
+		UserId:    userID,
+		ProjectId: projectID,
+		Key:       "sum",
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error sending Get request to store: %w", err)
+	}
+
+	// Convert data from JSON (stored as []byte) back to int
+	val := new(T)
+	if len(resp.Value) > 0 {
+		err = json.Unmarshal(resp.Value, &val)
+		if err != nil {
+			return nil, fmt.Errorf("error unmarshaling data: %w", err)
+		}
+	}
+
+	return val, nil
+}
+
+// setHelper is a function to help with sending "Set" requests to the PTT database store.
+func setHelper[T any](ctx context.Context, userID, projectID string, value T) error {
+	// Convert data we want to store into JSON (stored as []byte)
+	val, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("error marshaling data: %w", err)
+	}
+
+	// Send the "Set" request over the gRPC client
+	_, err = storeClient.Set(ctx, &proto.SetRequest{
+		PluginId:  info.ID,
+		UserId:    userID,
+		ProjectId: projectID,
+		Key:       "sum",
+		Value:     val,
+	})
+	if err != nil {
+		return fmt.Errorf("error sending Set request to store: %w", err)
+	}
+
+	return nil
+}
+
+type sum struct {
+	Sum int `json:"sum"`
 }
 
 // index "GET /index" return's the plugin's root page.
@@ -81,55 +135,49 @@ func (m *ModuleExample) index(ctx context.Context, req *http.Request) (*shared.R
 	projectName := req.Header.Get(shared.PTTProjectName)
 	projectID := req.Header.Get(shared.PTTProjectID)
 
-	// Query PTT database store for previously stored value
-	key := fmt.Sprintf("%s:%s", userID, projectID)
-
-	// Send the "Get" request over the gRPC client
-	resp, err := storeClient.Get(ctx, &proto.GetRequest{
-		PluginId: info.ID,
-		Key:      key,
-	})
+	// Query PTT database store for user's total sum in this project
+	userProjectSum, err := getHelper[sum](ctx, userID, projectID)
 	if err != nil {
-		err = fmt.Errorf("error sending Get request to store: %w", err)
-		m.logger.Error(err.Error())
 		return nil, err
 	}
 
-	// Convert data from JSON (stored as []byte) back to int
-	val := new(data)
-	if len(resp.Value) > 0 {
-		err = json.Unmarshal(resp.Value, &val)
-		if err != nil {
-			err = fmt.Errorf("error unmarshaling data: %w", err)
-			m.logger.Error(err.Error())
-			return nil, err
-		}
-	} else {
-		m.logger.Debug("Get response value was empty")
+	// Query PTT database store for user's total sum
+	userSum, err := getHelper[sum](ctx, userID, "")
+	if err != nil {
+		return nil, err
+	}
+
+	// Query PTT database store for project's total sum
+	projectSum, err := getHelper[sum](ctx, "", projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query PTT database store for plugin's total sum
+	pluginSum, err := getHelper[sum](ctx, "", "")
+	if err != nil {
+		return nil, err
 	}
 
 	// Note that we can pass an http.Header that will be seen from the frontend client
 	return helper(ctx, template.Example(req.Method, req.URL.String(),
-		username, userID, projectName, projectID, val.Sum),
+		username, userID, projectName, projectID,
+		userProjectSum.Sum, userSum.Sum, projectSum.Sum, pluginSum.Sum),
 		http.StatusOK, http.Header{"Example": {"Hello World!"}})
-}
-
-type data struct {
-	Sum int `json:"sum"`
 }
 
 // sum "POST /sum" example of an http.MethodPost request.
 func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Response, error) {
-	sum := 0
+	s := 0
 	numStr := req.PostFormValue("numbers")
 	if numStr != "" {
-		for _, s := range strings.Split(numStr, ",") {
-			n, err := strconv.Atoi(strings.TrimSpace(s))
+		for _, v := range strings.Split(numStr, ",") {
+			n, err := strconv.Atoi(strings.TrimSpace(v))
 			if err != nil {
-				return helper(ctx, template.Error("'"+s+"' is not an integer"),
+				return helper(ctx, template.Error("'"+v+"' is not an integer"),
 					http.StatusUnprocessableEntity, nil)
 			}
-			sum += n
+			s += n
 		}
 	}
 
@@ -137,29 +185,62 @@ func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Res
 	// Create key based on user & project
 	userID := req.Header.Get(shared.PTTUserID)
 	projectID := req.Header.Get(shared.PTTProjectID)
-	key := fmt.Sprintf("%s:%s", userID, projectID)
 
-	// Convert data we want to store into JSON (stored as []byte)
-	val, err := json.Marshal(data{Sum: sum})
+	// Query PTT database store for user's total sum in this project
+	userProjectSum, err := getHelper[sum](ctx, userID, projectID)
 	if err != nil {
-		err = fmt.Errorf("error marshaling data: %w", err)
-		m.logger.Error(err.Error())
 		return nil, err
 	}
 
-	// Send the "Set" request over the gRPC client
-	_, err = storeClient.Set(ctx, &proto.SetRequest{
-		PluginId: info.ID,
-		Key:      key,
-		Value:    val,
-	})
+	// Query PTT database store for user's sum
+	userSum, err := getHelper[sum](ctx, userID, "")
 	if err != nil {
-		err = fmt.Errorf("error sending Set request to store: %w", err)
-		m.logger.Error(err.Error())
 		return nil, err
 	}
 
-	return helper(ctx, template.Numbers(strconv.Itoa(sum)),
+	// Query PTT database store for project's sum
+	projectSum, err := getHelper[sum](ctx, "", projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query PTT database store for plugin's sum
+	pluginSum, err := getHelper[sum](ctx, "", "")
+	if err != nil {
+		return nil, err
+	}
+
+	// Add the calculated value to the sums
+	userProjectSum.Sum += s
+	userSum.Sum += s
+	projectSum.Sum += s
+	pluginSum.Sum += s
+
+	// Save the user's project sum to the PTT database store
+	err = setHelper[sum](ctx, userID, projectID, *userProjectSum)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save the user's sum to the PTT database store
+	err = setHelper[sum](ctx, userID, "", *userSum)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save the project's sum to the PTT database store
+	err = setHelper[sum](ctx, "", projectID, *projectSum)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save the plugin's sum to the PTT database store
+	err = setHelper[sum](ctx, "", "", *pluginSum)
+	if err != nil {
+		return nil, err
+	}
+
+	return helper(ctx, template.Numbers(s, userProjectSum.Sum, userSum.Sum, projectSum.Sum, pluginSum.Sum, projectID),
 		http.StatusOK, nil)
 }
 
@@ -167,7 +248,7 @@ func (m *ModuleExample) sum(ctx context.Context, req *http.Request) (*shared.Res
 // Returns a Server-sent event rather than a templ component's HTML.
 // Requires special handling on the frontend.
 func (m *ModuleExample) sse(ctx context.Context, req *http.Request) (chan *shared.Response, error) {
-	m.logger.Debug("SSE request received by plugin implementation", "method", req.Method, "URL", req.URL.String(),
+	m.logger.Trace("SSE request received by plugin implementation", "method", req.Method, "URL", req.URL.String(),
 		"protocol", req.Proto)
 
 	ch := make(chan *shared.Response, 1)
@@ -181,7 +262,7 @@ func (m *ModuleExample) sse(ctx context.Context, req *http.Request) (chan *share
 		for {
 			select {
 			case <-ctx.Done():
-				m.logger.Debug("closing plugin's SSE channel", "cause", "ctx.Done()")
+				m.logger.Trace("closing plugin's SSE channel", "cause", "ctx.Done()")
 				close(ch)
 				return
 			case <-ticker.C:
@@ -192,15 +273,15 @@ func (m *ModuleExample) sse(ctx context.Context, req *http.Request) (chan *share
 					Body:   resp,
 				}
 
-				m.logger.Debug("sent a response to plugin's SSE channel")
+				m.logger.Trace("sent a response to plugin's SSE channel")
 			case <-timer.C:
-				m.logger.Debug("plugin's timer expired, sending stop response")
+				m.logger.Trace("plugin's timer expired, sending stop response")
 				ch <- &shared.Response{
 					Status: http.StatusOK,
 					Body:   "stop",
 				}
 
-				m.logger.Debug("closing plugin's SSE channel", "cause", "done working")
+				m.logger.Trace("closing plugin's SSE channel", "cause", "done working")
 				close(ch)
 				return
 			}

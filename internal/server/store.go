@@ -16,8 +16,8 @@ type store struct {
 	g *app.Global
 }
 
-func (s *store) Get(ctx context.Context, pluginID, key string) ([]byte, error) {
-	value, err := database.StoreGet(ctx, s.g, pluginID, key)
+func (s *store) Get(ctx context.Context, pluginID, userID, projectID, key string) ([]byte, error) {
+	value, err := database.StoreGet(ctx, s.g, pluginID, userID, projectID, key)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,21 @@ func (s *store) Get(ctx context.Context, pluginID, key string) ([]byte, error) {
 	return value, nil
 }
 
-func (s *store) Set(ctx context.Context, pluginID, key string, value []byte) error {
-	return database.StoreSet(ctx, s.g, pluginID, key, value)
+func (s *store) Set(ctx context.Context, pluginID, userID, projectID, key string, value []byte) error {
+	// Check for existence
+	v, err := database.StoreGet(ctx, s.g, pluginID, userID, projectID, key)
+	if err != nil {
+		return err
+	}
+	if v == nil {
+		return database.StoreInsert(ctx, s.g, pluginID, userID, projectID, key, value)
+	}
+
+	return database.StoreUpdate(ctx, s.g, pluginID, userID, projectID, key, value)
+}
+
+func (s *store) Delete(ctx context.Context, pluginID, userID, projectID, key string) error {
+	return database.StoreDelete(ctx, s.g, pluginID, userID, projectID, key)
 }
 
 func startStoreServer(g *app.Global) (serv *grpc.Server, addr string, err error) {
