@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/app"
 	"github.com/Penetration-Testing-Toolkit/ptt/internal/database"
@@ -17,6 +18,10 @@ type store struct {
 }
 
 func (s *store) Get(ctx context.Context, pluginID, userID, projectID, key string) ([]byte, error) {
+	if len(pluginID) == 0 {
+		return nil, errors.New("pluginID cannot be empty")
+	}
+
 	value, err := database.StoreGet(ctx, s.g, pluginID, userID, projectID, key)
 	if err != nil {
 		return nil, err
@@ -26,6 +31,10 @@ func (s *store) Get(ctx context.Context, pluginID, userID, projectID, key string
 }
 
 func (s *store) Set(ctx context.Context, pluginID, userID, projectID, key string, value []byte) error {
+	if len(pluginID) == 0 {
+		return errors.New("pluginID cannot be empty")
+	}
+
 	// Check for existence
 	v, err := database.StoreGet(ctx, s.g, pluginID, userID, projectID, key)
 	if err != nil {
@@ -39,6 +48,10 @@ func (s *store) Set(ctx context.Context, pluginID, userID, projectID, key string
 }
 
 func (s *store) Delete(ctx context.Context, pluginID, userID, projectID, key string) error {
+	if len(pluginID) == 0 {
+		return errors.New("pluginID cannot be empty")
+	}
+
 	return database.StoreDelete(ctx, s.g, pluginID, userID, projectID, key)
 }
 
