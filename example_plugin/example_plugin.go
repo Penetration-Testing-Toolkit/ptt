@@ -20,7 +20,7 @@ var info = &shared.ModuleInfo{
 	Name:     "Example Plugin",
 	Version:  "1.1.0",
 	Category: proto.Category_MISC,
-	MetaData: []shared.MetaData{{"GitHub", "github.com/chronotrax/example_plugin"}},
+	MetaData: []*shared.MetaData{{"GitHub", "github.com/chronotrax/example_plugin"}},
 }
 
 type HandlerFunc func(context.Context, *http.Request) (*shared.Response, error)

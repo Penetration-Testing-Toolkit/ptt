@@ -40,6 +40,7 @@ type Route struct {
 	UseSSE bool
 }
 
+// MetaData is a key/value pair for arbitrary metadata.
 type MetaData struct {
 	Key   string
 	Value string
@@ -67,7 +68,7 @@ type ModuleInfo struct {
 	Category proto.Category
 
 	// MetaData is a slice of key/value metadata pairs.
-	MetaData []MetaData
+	MetaData []*MetaData
 }
 
 // Response is an HTTP response for transmission over gRPC.
@@ -109,11 +110,21 @@ func (c *ModuleGRPCClient) Register(ctx context.Context, storeServerAddr string)
 		return nil, err
 	}
 
+	metaData := make([]*MetaData, 0)
+	for _, data := range resp.GetMetaData() {
+		metaData = append(metaData, &MetaData{
+			Key:   data.GetKey(),
+			Value: data.GetValue(),
+		})
+	}
+
 	return &ModuleInfo{
-		ID:      resp.GetId(),
-		Name:    resp.GetName(),
-		Version: resp.GetVersion(),
-		Routes:  routesFromProto(resp.GetRoutes()),
+		ID:       resp.GetId(),
+		Name:     resp.GetName(),
+		Version:  resp.GetVersion(),
+		Routes:   routesFromProto(resp.GetRoutes()),
+		Category: resp.GetCategory(),
+		MetaData: metaData,
 	}, nil
 }
 
@@ -229,11 +240,21 @@ func (s *ModuleGRPCServer) Register(ctx context.Context, req *proto.RegisterRequ
 		return nil, err
 	}
 
+	metaData := make([]*proto.RegisterResponse_MetaData, 0)
+	for _, data := range info.MetaData {
+		metaData = append(metaData, &proto.RegisterResponse_MetaData{
+			Key:   data.Key,
+			Value: data.Value,
+		})
+	}
+
 	return &proto.RegisterResponse{
-		Id:      info.ID,
-		Name:    info.Name,
-		Version: info.Version,
-		Routes:  routesToProto(info.Routes),
+		Id:       info.ID,
+		Name:     info.Name,
+		Version:  info.Version,
+		Routes:   routesToProto(info.Routes),
+		Category: info.Category,
+		MetaData: metaData,
 	}, nil
 }
 
