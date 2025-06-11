@@ -19,10 +19,7 @@ var embeddedFS embed.FS
 
 func main() {
 	// Read environment variables to configure logging
-	json := true
-	if strings.ToUpper(os.Getenv("JSON")) == "FALSE" {
-		json = false
-	}
+	json := strings.ToUpper(os.Getenv("JSON")) != "FALSE"
 	logLevel := shared.LoggerOptions.Level
 	levelStr := os.Getenv("LOG_LEVEL")
 	level, err := strconv.Atoi(levelStr)

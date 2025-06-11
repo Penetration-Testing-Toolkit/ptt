@@ -14,7 +14,7 @@ import (
 // GetLogin "GET /login".
 func GetLogin(c echo.Context, g *app.Global) Response {
 	return Response{
-		Component: Layout(c, g, template.GetLogin()),
+		Component: Layout(c, g, template.GetLogin(g.DevMode())),
 	}
 }
 
