@@ -414,7 +414,12 @@
   }
 }
 .row-btn {
-  margin-inline: calc(var(--spacing) * 3);
+  margin-inline: calc(var(--spacing) * 1);
+  height: calc(var(--spacing) * 12);
+}
+.dropdown:hover .dropdown-menu {
+  display: flex;
+  flex-direction: column;
 }
 @property --tw-rotate-x {
   syntax: "*";

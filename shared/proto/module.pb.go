@@ -21,6 +21,73 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Category int32
+
+const (
+	Category_MISC               Category = 0
+	Category_SCANNER            Category = 1
+	Category_PASSWORD           Category = 2
+	Category_SHELL              Category = 3
+	Category_EXPLOIT            Category = 4
+	Category_WEB                Category = 5
+	Category_SOCIAL_ENGINEERING Category = 6
+	Category_FORENSIC           Category = 7
+	Category_REPORTING          Category = 8
+)
+
+// Enum value maps for Category.
+var (
+	Category_name = map[int32]string{
+		0: "MISC",
+		1: "SCANNER",
+		2: "PASSWORD",
+		3: "SHELL",
+		4: "EXPLOIT",
+		5: "WEB",
+		6: "SOCIAL_ENGINEERING",
+		7: "FORENSIC",
+		8: "REPORTING",
+	}
+	Category_value = map[string]int32{
+		"MISC":               0,
+		"SCANNER":            1,
+		"PASSWORD":           2,
+		"SHELL":              3,
+		"EXPLOIT":            4,
+		"WEB":                5,
+		"SOCIAL_ENGINEERING": 6,
+		"FORENSIC":           7,
+		"REPORTING":          8,
+	}
+)
+
+func (x Category) Enum() *Category {
+	p := new(Category)
+	*p = x
+	return p
+}
+
+func (x Category) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Category) Descriptor() protoreflect.EnumDescriptor {
+	return file_shared_proto_module_proto_enumTypes[0].Descriptor()
+}
+
+func (Category) Type() protoreflect.EnumType {
+	return &file_shared_proto_module_proto_enumTypes[0]
+}
+
+func (x Category) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Category.Descriptor instead.
+func (Category) EnumDescriptor() ([]byte, []int) {
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{0}
+}
+
 type Empty struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -102,11 +169,13 @@ func (x *RegisterRequest) GetStoreServerAddress() string {
 }
 
 type RegisterResponse struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Id            string                    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                    `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Version       string                    `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
-	Routes        []*RegisterResponse_Route `protobuf:"bytes,4,rep,name=routes,proto3" json:"routes,omitempty"`
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Id            string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                       `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Version       string                       `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	Routes        []*RegisterResponse_Route    `protobuf:"bytes,4,rep,name=routes,proto3" json:"routes,omitempty"`
+	Category      Category                     `protobuf:"varint,5,opt,name=category,proto3,enum=proto.Category" json:"category,omitempty"`
+	MetaData      []*RegisterResponse_MetaData `protobuf:"bytes,6,rep,name=metaData,proto3" json:"metaData,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,6 +234,20 @@ func (x *RegisterResponse) GetVersion() string {
 func (x *RegisterResponse) GetRoutes() []*RegisterResponse_Route {
 	if x != nil {
 		return x.Routes
+	}
+	return nil
+}
+
+func (x *RegisterResponse) GetCategory() Category {
+	if x != nil {
+		return x.Category
+	}
+	return Category_MISC
+}
+
+func (x *RegisterResponse) GetMetaData() []*RegisterResponse_MetaData {
+	if x != nil {
+		return x.MetaData
 	}
 	return nil
 }
@@ -401,6 +484,58 @@ func (x *RegisterResponse_Route) GetUseSse() bool {
 	return false
 }
 
+type RegisterResponse_MetaData struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterResponse_MetaData) Reset() {
+	*x = RegisterResponse_MetaData{}
+	mi := &file_shared_proto_module_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterResponse_MetaData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterResponse_MetaData) ProtoMessage() {}
+
+func (x *RegisterResponse_MetaData) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_module_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterResponse_MetaData.ProtoReflect.Descriptor instead.
+func (*RegisterResponse_MetaData) Descriptor() ([]byte, []int) {
+	return file_shared_proto_module_proto_rawDescGZIP(), []int{2, 1}
+}
+
+func (x *RegisterResponse_MetaData) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *RegisterResponse_MetaData) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 type Header_Value struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Values        []string               `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
@@ -410,7 +545,7 @@ type Header_Value struct {
 
 func (x *Header_Value) Reset() {
 	*x = Header_Value{}
-	mi := &file_shared_proto_module_proto_msgTypes[7]
+	mi := &file_shared_proto_module_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -422,7 +557,7 @@ func (x *Header_Value) String() string {
 func (*Header_Value) ProtoMessage() {}
 
 func (x *Header_Value) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_module_proto_msgTypes[7]
+	mi := &file_shared_proto_module_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -452,16 +587,21 @@ const file_shared_proto_module_proto_rawDesc = "" +
 	"\x19shared/proto/module.proto\x12\x05proto\"\a\n" +
 	"\x05Empty\"C\n" +
 	"\x0fRegisterRequest\x120\n" +
-	"\x14store_server_address\x18\x01 \x01(\tR\x12storeServerAddress\"\xd5\x01\n" +
+	"\x14store_server_address\x18\x01 \x01(\tR\x12storeServerAddress\"\xf4\x02\n" +
 	"\x10RegisterResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\x125\n" +
-	"\x06routes\x18\x04 \x03(\v2\x1d.proto.RegisterResponse.RouteR\x06routes\x1aL\n" +
+	"\x06routes\x18\x04 \x03(\v2\x1d.proto.RegisterResponse.RouteR\x06routes\x12+\n" +
+	"\bcategory\x18\x05 \x01(\x0e2\x0f.proto.CategoryR\bcategory\x12<\n" +
+	"\bmetaData\x18\x06 \x03(\v2 .proto.RegisterResponse.MetaDataR\bmetaData\x1aL\n" +
 	"\x05Route\x12\x16\n" +
 	"\x06method\x18\x01 \x01(\tR\x06method\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x12\x17\n" +
-	"\ause_sse\x18\x03 \x01(\bR\x06useSse\"\xac\x01\n" +
+	"\ause_sse\x18\x03 \x01(\bR\x06useSse\x1a2\n" +
+	"\bMetaData\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\xac\x01\n" +
 	"\x06Header\x121\n" +
 	"\x06header\x18\x01 \x03(\v2\x19.proto.Header.HeaderEntryR\x06header\x1a\x1f\n" +
 	"\x05Value\x12\x16\n" +
@@ -477,7 +617,17 @@ const file_shared_proto_module_proto_rawDesc = "" +
 	"\bResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\x05R\x06status\x12%\n" +
 	"\x06header\x18\x02 \x01(\v2\r.proto.HeaderR\x06header\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\tR\x04body2\xa0\x01\n" +
+	"\x04body\x18\x03 \x01(\tR\x04body*\x85\x01\n" +
+	"\bCategory\x12\b\n" +
+	"\x04MISC\x10\x00\x12\v\n" +
+	"\aSCANNER\x10\x01\x12\f\n" +
+	"\bPASSWORD\x10\x02\x12\t\n" +
+	"\x05SHELL\x10\x03\x12\v\n" +
+	"\aEXPLOIT\x10\x04\x12\a\n" +
+	"\x03WEB\x10\x05\x12\x16\n" +
+	"\x12SOCIAL_ENGINEERING\x10\x06\x12\f\n" +
+	"\bFORENSIC\x10\a\x12\r\n" +
+	"\tREPORTING\x10\b2\xa0\x01\n" +
 	"\x06Module\x12;\n" +
 	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x17.proto.RegisterResponse\x12)\n" +
 	"\x06Handle\x12\x0e.proto.Request\x1a\x0f.proto.Response\x12.\n" +
@@ -495,35 +645,40 @@ func file_shared_proto_module_proto_rawDescGZIP() []byte {
 	return file_shared_proto_module_proto_rawDescData
 }
 
-var file_shared_proto_module_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_shared_proto_module_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_shared_proto_module_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_shared_proto_module_proto_goTypes = []any{
-	(*Empty)(nil),                  // 0: proto.Empty
-	(*RegisterRequest)(nil),        // 1: proto.RegisterRequest
-	(*RegisterResponse)(nil),       // 2: proto.RegisterResponse
-	(*Header)(nil),                 // 3: proto.Header
-	(*Request)(nil),                // 4: proto.Request
-	(*Response)(nil),               // 5: proto.Response
-	(*RegisterResponse_Route)(nil), // 6: proto.RegisterResponse.Route
-	(*Header_Value)(nil),           // 7: proto.Header.Value
-	nil,                            // 8: proto.Header.HeaderEntry
+	(Category)(0),                     // 0: proto.Category
+	(*Empty)(nil),                     // 1: proto.Empty
+	(*RegisterRequest)(nil),           // 2: proto.RegisterRequest
+	(*RegisterResponse)(nil),          // 3: proto.RegisterResponse
+	(*Header)(nil),                    // 4: proto.Header
+	(*Request)(nil),                   // 5: proto.Request
+	(*Response)(nil),                  // 6: proto.Response
+	(*RegisterResponse_Route)(nil),    // 7: proto.RegisterResponse.Route
+	(*RegisterResponse_MetaData)(nil), // 8: proto.RegisterResponse.MetaData
+	(*Header_Value)(nil),              // 9: proto.Header.Value
+	nil,                               // 10: proto.Header.HeaderEntry
 }
 var file_shared_proto_module_proto_depIdxs = []int32{
-	6, // 0: proto.RegisterResponse.routes:type_name -> proto.RegisterResponse.Route
-	8, // 1: proto.Header.header:type_name -> proto.Header.HeaderEntry
-	3, // 2: proto.Request.header:type_name -> proto.Header
-	3, // 3: proto.Response.header:type_name -> proto.Header
-	7, // 4: proto.Header.HeaderEntry.value:type_name -> proto.Header.Value
-	1, // 5: proto.Module.Register:input_type -> proto.RegisterRequest
-	4, // 6: proto.Module.Handle:input_type -> proto.Request
-	4, // 7: proto.Module.HandleSSE:input_type -> proto.Request
-	2, // 8: proto.Module.Register:output_type -> proto.RegisterResponse
-	5, // 9: proto.Module.Handle:output_type -> proto.Response
-	5, // 10: proto.Module.HandleSSE:output_type -> proto.Response
-	8, // [8:11] is the sub-list for method output_type
-	5, // [5:8] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7,  // 0: proto.RegisterResponse.routes:type_name -> proto.RegisterResponse.Route
+	0,  // 1: proto.RegisterResponse.category:type_name -> proto.Category
+	8,  // 2: proto.RegisterResponse.metaData:type_name -> proto.RegisterResponse.MetaData
+	10, // 3: proto.Header.header:type_name -> proto.Header.HeaderEntry
+	4,  // 4: proto.Request.header:type_name -> proto.Header
+	4,  // 5: proto.Response.header:type_name -> proto.Header
+	9,  // 6: proto.Header.HeaderEntry.value:type_name -> proto.Header.Value
+	2,  // 7: proto.Module.Register:input_type -> proto.RegisterRequest
+	5,  // 8: proto.Module.Handle:input_type -> proto.Request
+	5,  // 9: proto.Module.HandleSSE:input_type -> proto.Request
+	3,  // 10: proto.Module.Register:output_type -> proto.RegisterResponse
+	6,  // 11: proto.Module.Handle:output_type -> proto.Response
+	6,  // 12: proto.Module.HandleSSE:output_type -> proto.Response
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_shared_proto_module_proto_init() }
@@ -536,13 +691,14 @@ func file_shared_proto_module_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shared_proto_module_proto_rawDesc), len(file_shared_proto_module_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   9,
+			NumEnums:      1,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_shared_proto_module_proto_goTypes,
 		DependencyIndexes: file_shared_proto_module_proto_depIdxs,
+		EnumInfos:         file_shared_proto_module_proto_enumTypes,
 		MessageInfos:      file_shared_proto_module_proto_msgTypes,
 	}.Build()
 	File_shared_proto_module_proto = out.File

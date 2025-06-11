@@ -29,10 +29,21 @@ templ Layout(modules []*model.ModuleTempl, user *model.UserTempl, project *model
 					</div>
 					<div id="module-buttons" class="flex justify-center">
 						<a href="/" class="row-btn">Home</a>
-						for _, m := range modules {
-							<a href={ templ.URL(m.URL + "/index") } class="row-btn">
-								{ m.Name }
-							</a>
+						for i, c := range model.Categories {
+							<div class="dropdown">
+								<button class="row-btn">{ c }</button>
+								<ul class="dropdown-menu absolute hidden bg-gray-200">
+									for _, m := range modules {
+										if m.Category == i {
+											<li class="m-2">
+												<a href={ templ.URL(m.URL + "/index") } class="btn">
+													{ m.Name }
+												</a>
+											</li>
+										}
+									}
+								</ul>
+							</div>
 						}
 					</div>
 					<div class="flex mx-6">

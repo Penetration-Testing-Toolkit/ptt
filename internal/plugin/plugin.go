@@ -47,9 +47,10 @@ func ModulesToTempl(modules []*ModulePlugin) []*model.ModuleTempl {
 
 	for _, plug := range modules {
 		i = append(i, &model.ModuleTempl{
-			URL:     plug.rootURL.String(),
-			Name:    plug.info.Name,
-			Version: plug.info.Version,
+			URL:      plug.rootURL.String(),
+			Name:     plug.info.Name,
+			Version:  plug.info.Version,
+			Category: int(plug.info.Category),
 		})
 	}
 

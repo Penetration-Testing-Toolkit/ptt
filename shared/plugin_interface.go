@@ -40,6 +40,11 @@ type Route struct {
 	UseSSE bool
 }
 
+type MetaData struct {
+	Key   string
+	Value string
+}
+
 // ModuleInfo contains a Module plugin's information to provide to the server.
 type ModuleInfo struct {
 	// ID should be the git URL of the plugin (same as Go mod) in order to keep plugin IDs unique.
@@ -57,6 +62,12 @@ type ModuleInfo struct {
 
 	// Routes is a slice of Route the Module needs to handle.
 	Routes []*Route
+
+	// Category is the category of plugin. See module.proto for proto.Category enum.
+	Category proto.Category
+
+	// MetaData is a slice of key/value metadata pairs.
+	MetaData []MetaData
 }
 
 // Response is an HTTP response for transmission over gRPC.
