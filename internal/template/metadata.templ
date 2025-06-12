@@ -1,0 +1,15 @@
+package template
+
+import "github.com/Penetration-Testing-Toolkit/ptt/internal/model"
+
+templ GetMetadata(module *model.ModuleTempl) {
+	<div class="flex flex-col items-center">
+		<div>Name: <span class="font-bold">{ module.Name }</span></div>
+		<div>ID: <span class="font-bold">{ module.ID }</span></div>
+		<div>Version: <span class="font-bold">{ module.Version }</span></div>
+		<div>Category: <span class="font-bold">{ model.Categories[module.Category] }</span></div>
+		for _, m := range module.Metadata {
+			<div>{ m.Key }: <span class="font-bold">{ m.Value }</span></div>
+		}
+	</div>
+}

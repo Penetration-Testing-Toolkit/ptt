@@ -5,5 +5,9 @@
 }
 
 .row-btn {
-  @apply mx-3
+  @apply mx-1 h-12
+}
+
+.dropdown:hover .dropdown-menu {
+  @apply flex flex-col
 }

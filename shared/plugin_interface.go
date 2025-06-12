@@ -40,6 +40,12 @@ type Route struct {
 	UseSSE bool
 }
 
+// Metadata is a key/value pair for arbitrary metadata.
+type Metadata struct {
+	Key   string
+	Value string
+}
+
 // ModuleInfo contains a Module plugin's information to provide to the server.
 type ModuleInfo struct {
 	// ID should be the git URL of the plugin (same as Go mod) in order to keep plugin IDs unique.
@@ -57,6 +63,12 @@ type ModuleInfo struct {
 
 	// Routes is a slice of Route the Module needs to handle.
 	Routes []*Route
+
+	// Category is the category of plugin. See module.proto for proto.Category enum.
+	Category proto.Category
+
+	// Metadata is a slice of key/value metadata pairs.
+	Metadata []*Metadata
 }
 
 // Response is an HTTP response for transmission over gRPC.
@@ -98,11 +110,21 @@ func (c *ModuleGRPCClient) Register(ctx context.Context, storeServerAddr string)
 		return nil, err
 	}
 
+	metadata := make([]*Metadata, 0)
+	for _, data := range resp.GetMetadata() {
+		metadata = append(metadata, &Metadata{
+			Key:   data.GetKey(),
+			Value: data.GetValue(),
+		})
+	}
+
 	return &ModuleInfo{
-		ID:      resp.GetId(),
-		Name:    resp.GetName(),
-		Version: resp.GetVersion(),
-		Routes:  routesFromProto(resp.GetRoutes()),
+		ID:       resp.GetId(),
+		Name:     resp.GetName(),
+		Version:  resp.GetVersion(),
+		Routes:   routesFromProto(resp.GetRoutes()),
+		Category: resp.GetCategory(),
+		Metadata: metadata,
 	}, nil
 }
 
@@ -218,11 +240,21 @@ func (s *ModuleGRPCServer) Register(ctx context.Context, req *proto.RegisterRequ
 		return nil, err
 	}
 
+	metadata := make([]*proto.RegisterResponse_Metadata, 0)
+	for _, data := range info.Metadata {
+		metadata = append(metadata, &proto.RegisterResponse_Metadata{
+			Key:   data.Key,
+			Value: data.Value,
+		})
+	}
+
 	return &proto.RegisterResponse{
-		Id:      info.ID,
-		Name:    info.Name,
-		Version: info.Version,
-		Routes:  routesToProto(info.Routes),
+		Id:       info.ID,
+		Name:     info.Name,
+		Version:  info.Version,
+		Routes:   routesToProto(info.Routes),
+		Category: info.Category,
+		Metadata: metadata,
 	}, nil
 }
 

@@ -78,9 +78,10 @@ discover and attempt to run them.
   - Sets logging level (1-5).
   - See: `hclog.Level`.
 - `ENV=DEV` (EXPERIMENTAL)
-  - Switches to dev environment.
+  - Switches to dev environment. NOT SAFE FOR PRODUCTION USE!!
     - Hosts static assets from the file system instead of the binary's embedded
       file system.
+    - Autofill default `root` credentials in the login page.
 
 ## Development Requirements
 

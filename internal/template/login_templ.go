@@ -8,7 +8,7 @@ package template
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func GetLogin() templ.Component {
+func GetLogin(devMode bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,7 +29,27 @@ func GetLogin() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col content-center m-3\"><div class=\"mx-auto text-lg font-bold\">Login</div><form x-target=\"error\" x-target.3xx=\"_top\" method=\"post\" action=\"/login\" class=\"mx-auto\"><div class=\"grid grid-cols-4 justify-between content-center m-4\"><label for=\"username\" class=\"my-auto\">Username</label> <input id=\"username\" name=\"username\" type=\"text\" autocomplete=\"off\" autofocus class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"password\" class=\"my-auto\">Password</label> <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"></div><div class=\"flex justify-center my-2\"><button type=\"submit\" class=\"btn mx-4\">Login</button> <button type=\"reset\" class=\"btn mx-4\">Reset</button></div></form><div class=\"mx-auto\"><div id=\"error\"></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col content-center m-3\"><div class=\"mx-auto text-lg font-bold\">Login</div><form x-target=\"error\" x-target.3xx=\"_top\" method=\"post\" action=\"/login\" class=\"mx-auto\"><div class=\"grid grid-cols-4 justify-between content-center m-4\"><label for=\"username\" class=\"my-auto\">Username</label> <input id=\"username\" name=\"username\" type=\"text\" autocomplete=\"off\" autofocus")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if devMode {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " value=\"root\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"password\" class=\"my-auto\">Password</label> <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"off\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if devMode {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " value=\"changeme!!\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " class=\"col-span-3 m-1 p-2 bg-emerald-100\"></div><div class=\"flex justify-center my-2\"><button type=\"submit\" class=\"btn mx-4\">Login</button> <button type=\"reset\" class=\"btn mx-4\">Reset</button></div></form><div class=\"mx-auto\"><div id=\"error\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
