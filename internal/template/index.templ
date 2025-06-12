@@ -12,6 +12,9 @@ templ GetIndex(modules []*model.ModuleTempl, user *model.UserTempl) {
 					<a href={ templ.URL(m.URL + "/index") } class="btn">
 						{ m.Name } (Version { m.Version })
 					</a>
+					<a href={ templ.URL("/metadata?id=" + m.ID) } class="btn">
+						?
+					</a>
 				</li>
 			}
 		</ul>

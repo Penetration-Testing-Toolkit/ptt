@@ -41,17 +41,24 @@ func (m ModulePlugin) RootURL() *url.URL {
 	return m.rootURL
 }
 
+// ModuleToTempl converts a ModulePlugin into a model.ModuleTempl.
+func ModuleToTempl(module *ModulePlugin) *model.ModuleTempl {
+	return &model.ModuleTempl{
+		ID:       module.info.ID,
+		URL:      module.rootURL.String(),
+		Name:     module.info.Name,
+		Version:  module.info.Version,
+		Category: int(module.info.Category),
+		Metadata: module.info.Metadata,
+	}
+}
+
 // ModulesToTempl converts a ModulePlugin slice into a model.ModuleTempl slice.
 func ModulesToTempl(modules []*ModulePlugin) []*model.ModuleTempl {
 	i := make([]*model.ModuleTempl, 0)
 
 	for _, plug := range modules {
-		i = append(i, &model.ModuleTempl{
-			URL:      plug.rootURL.String(),
-			Name:     plug.info.Name,
-			Version:  plug.info.Version,
-			Category: int(plug.info.Category),
-		})
+		i = append(i, ModuleToTempl(plug))
 	}
 
 	return i

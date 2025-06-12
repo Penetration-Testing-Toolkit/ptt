@@ -31,11 +31,11 @@ message RegisterResponse {
   string version = 3;
   repeated Route routes = 4;
   Category category = 5;
-  message MetaData {
+  message Metadata {
     string key = 1;
     string value = 2;
   }
-  repeated MetaData metaData = 6;
+  repeated Metadata metadata = 6;
 }
 
 message Header {

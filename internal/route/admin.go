@@ -226,14 +226,14 @@ type GetUsersQuery struct {
 	Page     int `query:"page"`
 }
 
-func (g GetUsersQuery) validate(_ context.Context) (problems []string) {
+func (q *GetUsersQuery) validate(_ context.Context) (problems []string) {
 	problems = make([]string, 0)
 
-	if g.PageSize < 10 || 50 < g.PageSize {
+	if q.PageSize < 10 || 50 < q.PageSize {
 		problems = append(problems, "page size must be between [10. 50]")
 	}
 
-	if g.Page < 0 {
+	if q.Page < 0 {
 		problems = append(problems, "page must be > 0")
 	}
 

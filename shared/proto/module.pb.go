@@ -175,7 +175,7 @@ type RegisterResponse struct {
 	Version       string                       `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
 	Routes        []*RegisterResponse_Route    `protobuf:"bytes,4,rep,name=routes,proto3" json:"routes,omitempty"`
 	Category      Category                     `protobuf:"varint,5,opt,name=category,proto3,enum=proto.Category" json:"category,omitempty"`
-	MetaData      []*RegisterResponse_MetaData `protobuf:"bytes,6,rep,name=metaData,proto3" json:"metaData,omitempty"`
+	Metadata      []*RegisterResponse_Metadata `protobuf:"bytes,6,rep,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -245,9 +245,9 @@ func (x *RegisterResponse) GetCategory() Category {
 	return Category_MISC
 }
 
-func (x *RegisterResponse) GetMetaData() []*RegisterResponse_MetaData {
+func (x *RegisterResponse) GetMetadata() []*RegisterResponse_Metadata {
 	if x != nil {
-		return x.MetaData
+		return x.Metadata
 	}
 	return nil
 }
@@ -484,7 +484,7 @@ func (x *RegisterResponse_Route) GetUseSse() bool {
 	return false
 }
 
-type RegisterResponse_MetaData struct {
+type RegisterResponse_Metadata struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
@@ -492,20 +492,20 @@ type RegisterResponse_MetaData struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RegisterResponse_MetaData) Reset() {
-	*x = RegisterResponse_MetaData{}
+func (x *RegisterResponse_Metadata) Reset() {
+	*x = RegisterResponse_Metadata{}
 	mi := &file_shared_proto_module_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RegisterResponse_MetaData) String() string {
+func (x *RegisterResponse_Metadata) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RegisterResponse_MetaData) ProtoMessage() {}
+func (*RegisterResponse_Metadata) ProtoMessage() {}
 
-func (x *RegisterResponse_MetaData) ProtoReflect() protoreflect.Message {
+func (x *RegisterResponse_Metadata) ProtoReflect() protoreflect.Message {
 	mi := &file_shared_proto_module_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -517,19 +517,19 @@ func (x *RegisterResponse_MetaData) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RegisterResponse_MetaData.ProtoReflect.Descriptor instead.
-func (*RegisterResponse_MetaData) Descriptor() ([]byte, []int) {
+// Deprecated: Use RegisterResponse_Metadata.ProtoReflect.Descriptor instead.
+func (*RegisterResponse_Metadata) Descriptor() ([]byte, []int) {
 	return file_shared_proto_module_proto_rawDescGZIP(), []int{2, 1}
 }
 
-func (x *RegisterResponse_MetaData) GetKey() string {
+func (x *RegisterResponse_Metadata) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *RegisterResponse_MetaData) GetValue() string {
+func (x *RegisterResponse_Metadata) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
@@ -594,12 +594,12 @@ const file_shared_proto_module_proto_rawDesc = "" +
 	"\aversion\x18\x03 \x01(\tR\aversion\x125\n" +
 	"\x06routes\x18\x04 \x03(\v2\x1d.proto.RegisterResponse.RouteR\x06routes\x12+\n" +
 	"\bcategory\x18\x05 \x01(\x0e2\x0f.proto.CategoryR\bcategory\x12<\n" +
-	"\bmetaData\x18\x06 \x03(\v2 .proto.RegisterResponse.MetaDataR\bmetaData\x1aL\n" +
+	"\bmetadata\x18\x06 \x03(\v2 .proto.RegisterResponse.MetadataR\bmetadata\x1aL\n" +
 	"\x05Route\x12\x16\n" +
 	"\x06method\x18\x01 \x01(\tR\x06method\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x12\x17\n" +
 	"\ause_sse\x18\x03 \x01(\bR\x06useSse\x1a2\n" +
-	"\bMetaData\x12\x10\n" +
+	"\bMetadata\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"\xac\x01\n" +
 	"\x06Header\x121\n" +
@@ -656,14 +656,14 @@ var file_shared_proto_module_proto_goTypes = []any{
 	(*Request)(nil),                   // 5: proto.Request
 	(*Response)(nil),                  // 6: proto.Response
 	(*RegisterResponse_Route)(nil),    // 7: proto.RegisterResponse.Route
-	(*RegisterResponse_MetaData)(nil), // 8: proto.RegisterResponse.MetaData
+	(*RegisterResponse_Metadata)(nil), // 8: proto.RegisterResponse.Metadata
 	(*Header_Value)(nil),              // 9: proto.Header.Value
 	nil,                               // 10: proto.Header.HeaderEntry
 }
 var file_shared_proto_module_proto_depIdxs = []int32{
 	7,  // 0: proto.RegisterResponse.routes:type_name -> proto.RegisterResponse.Route
 	0,  // 1: proto.RegisterResponse.category:type_name -> proto.Category
-	8,  // 2: proto.RegisterResponse.metaData:type_name -> proto.RegisterResponse.MetaData
+	8,  // 2: proto.RegisterResponse.metadata:type_name -> proto.RegisterResponse.Metadata
 	10, // 3: proto.Header.header:type_name -> proto.Header.HeaderEntry
 	4,  // 4: proto.Request.header:type_name -> proto.Header
 	4,  // 5: proto.Response.header:type_name -> proto.Header

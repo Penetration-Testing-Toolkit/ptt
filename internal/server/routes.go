@@ -75,6 +75,7 @@ func setupRoutes(e *echo.Echo, g *app.Global) {
 
 	// Index route
 	e.GET("/", adapter(route.GetIndex))
+	e.GET("/metadata", adapter(route.GetMetadata))
 
 	// "/login" & "/sign-out" sign-out routes
 	e.GET("/login", adapter(route.GetLogin))

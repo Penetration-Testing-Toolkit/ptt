@@ -40,8 +40,8 @@ type Route struct {
 	UseSSE bool
 }
 
-// MetaData is a key/value pair for arbitrary metadata.
-type MetaData struct {
+// Metadata is a key/value pair for arbitrary metadata.
+type Metadata struct {
 	Key   string
 	Value string
 }
@@ -67,8 +67,8 @@ type ModuleInfo struct {
 	// Category is the category of plugin. See module.proto for proto.Category enum.
 	Category proto.Category
 
-	// MetaData is a slice of key/value metadata pairs.
-	MetaData []*MetaData
+	// Metadata is a slice of key/value metadata pairs.
+	Metadata []*Metadata
 }
 
 // Response is an HTTP response for transmission over gRPC.
@@ -110,9 +110,9 @@ func (c *ModuleGRPCClient) Register(ctx context.Context, storeServerAddr string)
 		return nil, err
 	}
 
-	metaData := make([]*MetaData, 0)
-	for _, data := range resp.GetMetaData() {
-		metaData = append(metaData, &MetaData{
+	metadata := make([]*Metadata, 0)
+	for _, data := range resp.GetMetadata() {
+		metadata = append(metadata, &Metadata{
 			Key:   data.GetKey(),
 			Value: data.GetValue(),
 		})
@@ -124,7 +124,7 @@ func (c *ModuleGRPCClient) Register(ctx context.Context, storeServerAddr string)
 		Version:  resp.GetVersion(),
 		Routes:   routesFromProto(resp.GetRoutes()),
 		Category: resp.GetCategory(),
-		MetaData: metaData,
+		Metadata: metadata,
 	}, nil
 }
 
@@ -240,9 +240,9 @@ func (s *ModuleGRPCServer) Register(ctx context.Context, req *proto.RegisterRequ
 		return nil, err
 	}
 
-	metaData := make([]*proto.RegisterResponse_MetaData, 0)
-	for _, data := range info.MetaData {
-		metaData = append(metaData, &proto.RegisterResponse_MetaData{
+	metadata := make([]*proto.RegisterResponse_Metadata, 0)
+	for _, data := range info.Metadata {
+		metadata = append(metadata, &proto.RegisterResponse_Metadata{
 			Key:   data.Key,
 			Value: data.Value,
 		})
@@ -254,7 +254,7 @@ func (s *ModuleGRPCServer) Register(ctx context.Context, req *proto.RegisterRequ
 		Version:  info.Version,
 		Routes:   routesToProto(info.Routes),
 		Category: info.Category,
-		MetaData: metaData,
+		Metadata: metadata,
 	}, nil
 }
 
