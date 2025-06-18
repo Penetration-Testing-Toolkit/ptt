@@ -32,15 +32,21 @@ type validatable interface {
 
 // Layout wraps the given templ.Component in the template.Layout page.
 func Layout(c echo.Context, g *app.Global, component templ.Component) templ.Component {
+	return LayoutWithCSS(c, g, component, nil)
+}
+
+// LayoutWithCSS wraps the given templ.Component in the template.Layout page.
+// It also includes the provided CSS files in the HTML header.
+func LayoutWithCSS(c echo.Context, g *app.Global, component templ.Component, cssFiles []string) templ.Component {
 	modulesTempl := plugin.ModulesToTempl(g.Modules())
 
 	sess, err := controller.GetSession(c)
 	if err != nil {
 		// If no session found, treat as no account
-		return template.Layout(modulesTempl, nil, nil, component)
+		return template.Layout(modulesTempl, nil, nil, component, cssFiles)
 	}
 
-	return template.Layout(modulesTempl, userTemplFromSession(sess), projectTemplFromSession(sess), component)
+	return template.Layout(modulesTempl, userTemplFromSession(sess), projectTemplFromSession(sess), component, cssFiles)
 }
 
 // userTemplFromSession returns the model.UserTempl from the given session.Session.

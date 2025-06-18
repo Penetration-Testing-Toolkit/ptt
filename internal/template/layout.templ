@@ -2,7 +2,7 @@ package template
 
 import "github.com/Penetration-Testing-Toolkit/ptt/internal/model"
 
-templ Layout(modules []*model.ModuleTempl, user *model.UserTempl, project *model.ProjectTempl, contents templ.Component) {
+templ Layout(modules []*model.ModuleTempl, user *model.UserTempl, project *model.ProjectTempl, contents templ.Component, cssFiles []string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -10,6 +10,9 @@ templ Layout(modules []*model.ModuleTempl, user *model.UserTempl, project *model
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>PTT</title>
 			<link href="/static/css/output.css" rel="stylesheet"/>
+			for _, c := range cssFiles {
+				<link rel="stylesheet" href={ c }>
+			}
 		</head>
 		<body>
 			<div id="header" class="py-2 text-center text-lg bg-emerald-200 ">
