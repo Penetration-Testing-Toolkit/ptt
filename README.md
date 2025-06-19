@@ -44,10 +44,7 @@ will be rendered and sent to the frontend HTML body.
 - Go is recommended, but any language that supports gRPC should work (not yet
   tested).
 - When using Go, import `"github.com/Penetration-Testing-Toolkit/ptt/shared"`
-- See the `example_plugin` directory for an example of a module plugin.
-  - Note: the only internal package used in the example is the `template`
-    package. This is to simplify PTT's build process. When creating your own
-    plugin, you must create your own templating and build process.
+- See https://github.com/Penetration-Testing-Toolkit/example-plugin for an example of a module plugin.
 - See the `shared` package for the `Module` interface that a module plugin must
   implement, and other plugin documentation.
 - See [hashicorp/go-plugin](https://github.com/hashicorp/go-plugin) for more
