@@ -55,7 +55,7 @@ templ GetProject(csrf string, user *model.UserTempl, projects []*model.ProjectTe
 }
 
 templ GetProjects(csrf string, user *model.UserTempl, projects []*model.ProjectTempl) {
-	<ul id="projects" class="flex flex-col">
+	<ul x-sync id="projects" class="flex flex-col">
 		for _, proj := range projects {
 			<li class="bg-emerald-100 flex m-1 p-1 text-lg rounded-md">
 				<div class="flex flex-col justify-between">
@@ -98,12 +98,14 @@ templ GetProjects(csrf string, user *model.UserTempl, projects []*model.ProjectT
 	</ul>
 }
 
-templ CreateProjectSuccess() {
+templ CreateProjectSuccess(csrf string, user *model.UserTempl, projects []*model.ProjectTempl) {
 	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">Project Created</div>
 	<div id="error"></div>
+	@GetProjects(csrf, user, projects)
 }
 
-templ DeleteProjectSuccess() {
+templ DeleteProjectSuccess(csrf string, user *model.UserTempl, projects []*model.ProjectTempl) {
 	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">Project Deleted</div>
 	<div id="error"></div>
+	@GetProjects(csrf, user, projects)
 }

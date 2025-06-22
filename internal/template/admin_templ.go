@@ -57,7 +57,7 @@ func GetAdmin(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><div class=\"grid grid-cols-4 justify-between content-center m-4\"><label for=\"changeUsername\" class=\"my-auto\">Username</label> <input id=\"changeUsername\" name=\"username\" type=\"text\" autocomplete=\"off\" autofocus class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"oldPassword\" class=\"my-auto\">Old Password</label> <input id=\"oldPassword\" name=\"oldPassword\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"newPassword\" class=\"my-auto\">New Password</label> <input id=\"newPassword\" name=\"newPassword\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"confirmPassword\" class=\"my-auto\">Confirm Password</label> <input id=\"confirmPassword\" name=\"confirmPassword\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"></div><div class=\"flex justify-center my-2\"><button type=\"submit\" class=\"btn mx-4\">Update</button> <button type=\"reset\" class=\"btn mx-4\">Reset</button></div></form></div><div class=\"flex flex-col items-center\"><div id=\"success\"></div><div id=\"error\"></div></div></div><div class=\"col-span-2 flex flex-col items-center m-3\"><div class=\"text-lg font-bold\">Users</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><div class=\"grid grid-cols-4 justify-between content-center m-4\"><label for=\"changeUsername\" class=\"my-auto\">Username</label> <input id=\"changeUsername\" name=\"username\" type=\"text\" autocomplete=\"off\" autofocus class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"oldPassword\" class=\"my-auto\">Old Password</label> <input id=\"oldPassword\" name=\"oldPassword\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"newPassword\" class=\"my-auto\">New Password</label> <input id=\"newPassword\" name=\"newPassword\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"> <label for=\"confirmPassword\" class=\"my-auto\">Confirm Password</label> <input id=\"confirmPassword\" name=\"confirmPassword\" type=\"password\" autocomplete=\"off\" class=\"col-span-3 m-1 p-2 bg-emerald-100\"></div><div class=\"flex justify-center my-2\"><button type=\"submit\" class=\"btn mx-4\">Update</button> <button type=\"reset\" class=\"btn mx-4\">Reset</button></div></form></div><div class=\"flex flex-col items-center\"><div id=\"success\"></div><div id=\"error\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -65,7 +65,7 @@ func GetAdmin(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><script>\n\t\tfunction changePass(e) {\n  \t\t\tdocument.getElementById(\"changeUsername\").value = e.currentTarget.getAttribute(\"username\");\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><script>\n\t\tfunction changePass(e) {\n  \t\t\tdocument.getElementById(\"changeUsername\").value = e.currentTarget.getAttribute(\"username\");\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,7 +94,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- TODO: show page & page size errors? --><!-- TODO: update list on user creation & deletion --><form id=\"pageForm\" x-target=\"users pageForm\" action=\"/admin/users\" class=\"m-2 bg-gray-200\"><div class=\"grid grid-cols-4 justify-items-center items-center m-1\"><div class=\"font-bold\">Page:</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- TODO: show page & page size errors? --><div x-sync id=\"users\" class=\"col-span-2 flex flex-col items-center m-3\"><div class=\"text-lg font-bold\">Users</div><form id=\"pageForm\" x-target=\"userList pageForm\" action=\"/admin/users\" class=\"m-2 bg-gray-200\"><div class=\"grid grid-cols-4 justify-items-center items-center m-1\"><div class=\"font-bold\">Page:</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -106,7 +106,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(page - 1)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 91, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 89, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -129,7 +129,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(page)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 95, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 93, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -147,7 +147,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(page + 1)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 97, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 95, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -207,13 +207,13 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(page)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 123, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 121, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"btn\">↺</button></div></form><ul id=\"users\" class=\"flex flex-col\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"btn\">↺</button></div></form><ul id=\"userList\" class=\"flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -225,7 +225,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(user.Username)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 129, Col: 75}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 127, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -253,7 +253,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(user.Username)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 143, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 141, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -271,7 +271,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(csrf)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 151, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 149, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -284,7 +284,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(user.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 152, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin.templ`, Line: 150, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -300,7 +300,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</ul>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</ul></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -308,7 +308,7 @@ func GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) templ.C
 	})
 }
 
-func CreateUserSuccess() templ.Component {
+func CreateUserSuccess(csrf string, users []*model.UserTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -333,11 +333,15 @@ func CreateUserSuccess() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = GetUsers(csrf, users, 10, 0).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		return nil
 	})
 }
 
-func ChangePasswordSuccess() templ.Component {
+func DeleteUserSuccess(csrf string, users []*model.UserTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -358,7 +362,11 @@ func ChangePasswordSuccess() templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"success\" class=\"w-fit p-2 text-lg font-bold bg-green-300\">Password Changed</div><div id=\"error\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"success\" class=\"w-fit p-2 text-lg font-bold bg-green-300\">User Deleted</div><div id=\"error\"></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = GetUsers(csrf, users, 10, 0).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -366,7 +374,7 @@ func ChangePasswordSuccess() templ.Component {
 	})
 }
 
-func DeleteUserSuccess() templ.Component {
+func ChangePasswordSuccess() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -387,7 +395,7 @@ func DeleteUserSuccess() templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div id=\"success\" class=\"w-fit p-2 text-lg font-bold bg-green-300\">User Deleted</div><div id=\"error\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div id=\"success\" class=\"w-fit p-2 text-lg font-bold bg-green-300\">Password Changed</div><div id=\"error\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
