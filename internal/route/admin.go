@@ -68,9 +68,28 @@ func PostCreateUser(c echo.Context, g *app.Global) Response {
 		}
 	}
 
+	// Get CSRF from echo.Context
+	csrf, err := getCSRF(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Get list of users from controller
+	users, err := controller.GetUsers(c, g, 10, 0)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Convert models
+	usersTempl := usersToTempl(users)
+
 	// Success creating new user
 	return Response{
-		Component: template.CreateUserSuccess(),
+		Component: template.CreateUserSuccess(csrf, usersTempl),
 	}
 }
 
@@ -264,8 +283,27 @@ func PostDeleteUser(c echo.Context, g *app.Global) Response {
 		}
 	}
 
+	// Get CSRF from echo.Context
+	csrf, err := getCSRF(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Get list of users from controller
+	users, err := controller.GetUsers(c, g, 10, 0)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Convert models
+	usersTempl := usersToTempl(users)
+
 	return Response{
-		Component: template.DeleteUserSuccess(),
+		Component: template.DeleteUserSuccess(csrf, usersTempl),
 	}
 }
 

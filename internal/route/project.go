@@ -73,9 +73,37 @@ func PostProjectCreate(c echo.Context, g *app.Global) Response {
 		}
 	}
 
+	// Get CSRF from echo.Context
+	csrf, err := getCSRF(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Get user from session from echo.Context
+	sess, err := controller.GetSession(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+	userTempl := userTemplFromSession(sess)
+
+	// Get list of projects from controller
+	projects, err := controller.GetProjects(c, g)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Convert models
+	projectsTempl := projectsToTempl(projects)
+
 	// Success creating new project
 	return Response{
-		Component: template.CreateProjectSuccess(),
+		Component: template.CreateProjectSuccess(csrf, userTempl, projectsTempl),
 	}
 }
 
@@ -191,8 +219,36 @@ func PostProjectDelete(c echo.Context, g *app.Global) Response {
 		}
 	}
 
+	// Get CSRF from echo.Context
+	csrf, err := getCSRF(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Get user from session from echo.Context
+	sess, err := controller.GetSession(c)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+	userTempl := userTemplFromSession(sess)
+
+	// Get list of projects from controller
+	projects, err := controller.GetProjects(c, g)
+	if err != nil {
+		return Response{
+			Err: err,
+		}
+	}
+
+	// Convert models
+	projectsTempl := projectsToTempl(projects)
+
 	return Response{
-		Component: template.DeleteProjectSuccess(),
+		Component: template.DeleteProjectSuccess(csrf, userTempl, projectsTempl),
 	}
 }
 

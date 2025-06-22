@@ -51,7 +51,21 @@ func RegisterPluginRoutes(logger hclog.Logger, e *echo.Echo, g *app.Global, plug
 				// Replace the existing response status & headers with plugin's response
 				registerHelper(c, resp)
 
-				return Layout(c, g, template.PluginContent(resp.Body)).Render(c.Request().Context(), c.Response())
+				// Check if the response is a CSS file instead of a regular HTML response
+				if t := resp.Header.Get("Content-Type"); t == "text/css" {
+					logger.Trace("writing CSS response", "url", c.Request().URL.String())
+					// Copy (write) the CSS file without any HTML or layout
+					_, err = c.Response().Write([]byte(resp.Body))
+					return err
+				}
+
+				// Look for CSS files to include in HTML header from plugin's response headers
+				cssFiles := resp.Header["PTT-CSS"] // Will return []string if Header doesn't exist
+				if len(cssFiles) > 0 {
+					logger.Info("requested CSS files", "files", cssFiles, "originalURL", c.Request().URL.String())
+				}
+
+				return LayoutWithCSS(c, g, template.PluginContent(resp.Body), cssFiles).Render(c.Request().Context(), c.Response())
 			} else {
 				// Handle SSE request (https://echo.labstack.com/docs/cookbook/sse)
 				logger.Info("frontend SSE client connected", "IP", c.RealIP(), "Path", c.Request().URL.Path)

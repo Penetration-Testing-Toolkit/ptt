@@ -62,12 +62,7 @@ templ GetAdmin(csrf string, users []*model.UserTempl, pageSize, page int) {
 				<div id="error"></div>
 			</div>
 		</div>
-		<div class="col-span-2 flex flex-col items-center m-3">
-			<div class="text-lg font-bold">
-				Users
-			</div>
-			@GetUsers(csrf, users, pageSize, page)
-		</div>
+		@GetUsers(csrf, users, pageSize, page)
 	</div>
 	<script>
 		function changePass(e) {
@@ -78,98 +73,104 @@ templ GetAdmin(csrf string, users []*model.UserTempl, pageSize, page int) {
 
 templ GetUsers(csrf string, users []*model.UserTempl, pageSize, page int) {
 	<!-- TODO: show page & page size errors? -->
-	<!-- TODO: update list on user creation & deletion -->
-	<form
-		id="pageForm"
-		x-target="users pageForm"
-		action="/admin/users"
-		class="m-2 bg-gray-200"
-	>
-		<div class="grid grid-cols-4 justify-items-center items-center m-1">
-			<div class="font-bold">Page:</div>
-			if page > 0 {
-				<button name="page" value={ page - 1 } class="btn m-1">🡠</button>
-			} else {
-				<div></div>
-			}
-			<div class="m-1">{ page }</div>
-			if len(users) != 0 {
-				<button name="page" value={ page + 1 } class="btn m-1">🡢</button>
-			} else {
-				<div></div>
-			}
+	<div x-sync id="users" class="col-span-2 flex flex-col items-center m-3">
+		<div class="text-lg font-bold">
+			Users
 		</div>
-		<div class="flex justify-center items-center m-1">
-			<label for="pageSize" class="m-1">
-				Page size:
-			</label>
-			<select id="pageSize" name="pageSize" autocomplete="off" class="m-1 btn">
-				if pageSize != 10 {
-					<option value="10">10</option>
+		<form
+			id="pageForm"
+			x-target="userList pageForm"
+			action="/admin/users"
+			class="m-2 bg-gray-200"
+		>
+			<div class="grid grid-cols-4 justify-items-center items-center m-1">
+				<div class="font-bold">Page:</div>
+				if page > 0 {
+					<button name="page" value={ page - 1 } class="btn m-1">🡠</button>
 				} else {
-					<option value="10" selected="selected">10</option>
+					<div></div>
 				}
-				if pageSize == 25 {
-					<option value="25" selected="selected">25</option>
+				<div class="m-1">{ page }</div>
+				if len(users) != 0 {
+					<button name="page" value={ page + 1 } class="btn m-1">🡢</button>
 				} else {
-					<option value="25">25</option>
+					<div></div>
 				}
-				if pageSize == 50 {
-					<option value="50" selected="selected">50</option>
-				} else {
-					<option value="50">50</option>
-				}
-			</select>
-			<button name="page" value={ page } class="btn">↺</button>
-		</div>
-	</form>
-	<ul id="users" class="flex flex-col">
-		for _, user := range users {
-			<li class="bg-emerald-100 grid grid-cols-2 items-center m-1 p-1 text-lg rounded-md">
-				<div class="w-50 m-1">Username: <span class="font-bold">{ user.Username }</span></div>
-				<div class="flex justify-start items-center">
-					<div class="w-25 m-1">
-						Is Admin?
-						if user.IsAdmin {
-							<span class="bg-green-200 rounded-lg p-0.5">
-								✓
-							</span>
-						} else {
-							<span class="bg-red-200 rounded-lg p-0.5">
-								✕
-							</span>
+			</div>
+			<div class="flex justify-center items-center m-1">
+				<label for="pageSize" class="m-1">
+					Page size:
+				</label>
+				<select id="pageSize" name="pageSize" autocomplete="off" class="m-1 btn">
+					if pageSize != 10 {
+						<option value="10">10</option>
+					} else {
+						<option value="10" selected="selected">10</option>
+					}
+					if pageSize == 25 {
+						<option value="25" selected="selected">25</option>
+					} else {
+						<option value="25">25</option>
+					}
+					if pageSize == 50 {
+						<option value="50" selected="selected">50</option>
+					} else {
+						<option value="50">50</option>
+					}
+				</select>
+				<button name="page" value={ page } class="btn">↺</button>
+			</div>
+		</form>
+		<ul id="userList" class="flex flex-col">
+			for _, user := range users {
+				<li class="bg-emerald-100 grid grid-cols-2 items-center m-1 p-1 text-lg rounded-md">
+					<div class="w-50 m-1">Username: <span class="font-bold">{ user.Username }</span></div>
+					<div class="flex justify-start items-center">
+						<div class="w-25 m-1">
+							Is Admin?
+							if user.IsAdmin {
+								<span class="bg-green-200 rounded-lg p-0.5">
+									✓
+								</span>
+							} else {
+								<span class="bg-red-200 rounded-lg p-0.5">
+									✕
+								</span>
+							}
+						</div>
+						<button onclick="changePass(event)" username={ user.Username } class="btn m-1">Change Password</button>
+						if user.Username != "root" {
+							<form
+								x-target="success error"
+								method="post"
+								action="/admin/delete-user"
+								onsubmit="if(!confirm('Are you sure you want to delete this user?')){return false}"
+							>
+								<input type="hidden" name="_csrf" value={ csrf }/>
+								<input type="hidden" name="userID" value={ user.ID }/>
+								<button type="submit" class="btn m-1 !bg-red-400 hover:!bg-red-700">🗑</button>
+							</form>
 						}
 					</div>
-					<button onclick="changePass(event)" username={ user.Username } class="btn m-1">Change Password</button>
-					if user.Username != "root" {
-						<form
-							x-target="success error"
-							method="post"
-							action="/admin/delete-user"
-							onsubmit="if(!confirm('Are you sure you want to delete this user?')){return false}"
-						>
-							<input type="hidden" name="_csrf" value={ csrf }/>
-							<input type="hidden" name="userID" value={ user.ID }/>
-							<button type="submit" class="btn m-1 !bg-red-400 hover:!bg-red-700">🗑</button>
-						</form>
-					}
-				</div>
-			</li>
-		}
-	</ul>
+				</li>
+			}
+		</ul>
+	</div>
 }
 
-templ CreateUserSuccess() {
+templ CreateUserSuccess(csrf string, users []*model.UserTempl) {
 	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">User Created</div>
 	<div id="error"></div>
+	@GetUsers(csrf, users, 10, 0)
+}
+
+templ DeleteUserSuccess(csrf string, users []*model.UserTempl) {
+	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">User Deleted</div>
+	<div id="error"></div>
+	@GetUsers(csrf, users, 10, 0)
 }
 
 templ ChangePasswordSuccess() {
 	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">Password Changed</div>
-	<div id="error"></div>
-}
-
-templ DeleteUserSuccess() {
-	<div id="success" class="w-fit p-2 text-lg font-bold bg-green-300">User Deleted</div>
 	<div id="error"></div>
 }

@@ -21,12 +21,6 @@ proto:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative shared/proto/module.proto shared/proto/store.proto
 
 
-.PHONY: example
-example:
-	@echo "building example plugin..."
-	go build -o ./plugins/example_plugin.plugin ./example_plugin/
-
-
 .PHONY: templ
 templ:
 	@echo "generating templ files..."
@@ -40,7 +34,7 @@ tailwind:
 
 
 .PHONY: build
-build: proto tailwind templ example 
+build: proto tailwind templ
 	@echo "building go binary..."
 	go build -o build/${BINARY_NAME} main.go
 
