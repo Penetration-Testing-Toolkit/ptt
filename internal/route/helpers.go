@@ -51,10 +51,12 @@ func LayoutWithCSS(c echo.Context, g *app.Global, component templ.Component, css
 
 // userTemplFromSession returns the model.UserTempl from the given session.Session.
 func userTemplFromSession(s *session.Session) *model.UserTempl {
+	u := s.User()
+
 	return &model.UserTempl{
-		ID:       s.User().ID.String(),
-		Username: s.User().Username,
-		IsAdmin:  s.User().IsAdmin,
+		ID:       u.ID.String(),
+		Username: u.Username,
+		IsAdmin:  u.IsAdmin,
 	}
 }
 
@@ -64,11 +66,13 @@ func projectTemplFromSession(s *session.Session) *model.ProjectTempl {
 		return nil
 	}
 
+	p := s.Project()
+
 	return &model.ProjectTempl{
-		ID:        s.Project().ID.String(),
-		Name:      s.Project().Name,
-		OwnerID:   s.Project().OwnerID.String(),
-		OwnerName: s.Project().OwnerName,
+		ID:        p.ID.String(),
+		Name:      p.Name,
+		OwnerID:   p.OwnerID.String(),
+		OwnerName: p.OwnerName,
 	}
 }
 

@@ -9,12 +9,13 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
 // Manager based loosely on https://themsaid.com/building-secure-session-manager-in-go
 type Manager struct {
-	store              map[string]*Session
+	store              sync.Map
 	idleExpiration     time.Duration
 	absoluteExpiration time.Duration
 	cookieName         string
@@ -27,14 +28,28 @@ func (m *Manager) gc(d time.Duration) {
 
 	for range ticker.C {
 		m.logger.Debug("session GC starting...")
-		for k, s := range m.store {
-			if s.expired(m) {
-				// Delete key and associated value
-				m.logger.Debug("deleting session", "key", k, "session ID", s.id,
-					"username", s.user.Username)
-				delete(m.store, k)
+		m.store.Range(func(k, v any) bool {
+			key, ok := k.(string)
+			if !ok {
+				m.logger.Error("session gc: key is not a string")
+				return true
 			}
-		}
+
+			sess, ok := v.(*Session)
+			if !ok {
+				m.logger.Error("session gc: value is not a session")
+				return true
+			}
+
+			if sess.expired(m) {
+				// Delete key and associated value
+				m.logger.Debug("deleting session", "key", k, "session ID", sess.ID(),
+					"username", sess.User().Username)
+				m.store.Delete(key)
+			}
+
+			return true
+		})
 		m.logger.Debug("session GC ended")
 	}
 }
@@ -42,18 +57,24 @@ func (m *Manager) gc(d time.Duration) {
 // getValidSession returns a Session if the sessionID exists and is not expired.
 // If a Session is found but is expired, it is deleted.
 func (m *Manager) getValidSession(sessionID string) *Session {
-	s, ok := m.store[sessionID]
+	s, ok := m.store.Load(sessionID)
 	if !ok {
 		return nil
 	}
 
-	if s.expired(m) {
-		// Delete expired key and associated value
-		delete(m.store, sessionID)
+	sess, ok := s.(*Session)
+	if !ok {
+		m.logger.Error("session getValidSession: value is not a session")
 		return nil
 	}
 
-	return s
+	if sess.expired(m) {
+		// Delete expired key and associated value
+		m.store.Delete(sessionID)
+		return nil
+	}
+
+	return sess
 }
 
 // setCookie creates the session cookie on the response.
@@ -99,7 +120,7 @@ func (m *Manager) NewSession(w http.ResponseWriter, user *model.User) *Session {
 			panic("stuck! unable to generate an unused session ID")
 		}
 
-		if _, ok := m.store[id]; ok {
+		if _, ok := m.store.Load(id); ok {
 			// rare collision, generate a new ID
 			id = randomID()
 		} else {
@@ -113,9 +134,10 @@ func (m *Manager) NewSession(w http.ResponseWriter, user *model.User) *Session {
 		project:      nil,
 		createdAt:    time.Now(),
 		lastActivity: time.Now(),
+		mutex:        sync.RWMutex{},
 	}
 
-	m.store[id] = s
+	m.store.Store(id, s)
 
 	m.setCookie(w, id, m.idleExpiration)
 
@@ -125,7 +147,7 @@ func (m *Manager) NewSession(w http.ResponseWriter, user *model.User) *Session {
 // DeleteSession deletes the Session with matching sessionID from the Manager & invalidates the user's session cookie.
 func (m *Manager) DeleteSession(c echo.Context, sessionID string) {
 	m.invalidateCookie(c.Response(), sessionID)
-	delete(m.store, sessionID)
+	m.store.Delete(sessionID)
 }
 
 func (m *Manager) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -147,13 +169,15 @@ func (m *Manager) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		// Look for session in store
 		s := m.getValidSession(sessionID)
 		if s == nil {
-			// Invalidate provided session cookie and redirect
+			// Invalidate provided session cookie and send error page
 			m.invalidateCookie(c.Response(), sessionID)
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 
 		// Update session's last use & client's cookie
+		s.mutex.Lock()
 		s.lastActivity = time.Now()
+		s.mutex.Unlock()
 		m.setCookie(c.Response(), sessionID, m.idleExpiration)
 
 		// Add session to context for use by handlers
@@ -165,7 +189,7 @@ func (m *Manager) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func NewSessionManager(gcInterval, idleExpiration, absoluteExpiration time.Duration, cookieName string, logger hclog.Logger) *Manager {
 	m := &Manager{
-		store:              make(map[string]*Session),
+		store:              sync.Map{},
 		idleExpiration:     idleExpiration,
 		absoluteExpiration: absoluteExpiration,
 		cookieName:         cookieName,
